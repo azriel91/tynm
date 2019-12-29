@@ -1,0 +1,21 @@
+[package]
+name = "tynm"
+version = "0.1.0"
+authors = ["Azriel Hoh <azriel91@gmail.com>"]
+edition = "2018"
+description = "Returns type names in shorter form."
+repository = "https://github.com/azriel91/tynm"
+readme = "README.md"
+keywords = ["typename", "type", "name"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+nom = "5.0.1"
+
+[dev-dependencies]
+pretty_assertions = "0.6.1"
+
+[badges]
+appveyor = { repository = "azriel91/tynm" }
+travis-ci = { repository = "azriel91/tynm" }
+codecov = { repository = "azriel91/tynm" }
