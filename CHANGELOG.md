@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1 (unreleased)
+## 0.1.1 (2020-01-02)
 
 * Support named primitive types (`usize`, `u*`, ..). ([#1])
 * Support arrays, slices, and tuples. ([#1])
