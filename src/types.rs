@@ -4,31 +4,20 @@ use crate::parser;
 
 /// Organizes type name string into distinct parts.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TypeName<'s> {
-    /// Module path of this type.
-    pub(crate) module_path: Vec<&'s str>,
-    /// Simple type name, excluding type parameters.
-    pub(crate) simple_name: &'s str,
-    /// Type parameters to this type.
-    pub(crate) type_params: Vec<TypeName<'s>>,
+pub enum TypeName<'s> {
+    None,
+    Array(TypeNameArray<'s>),
+    // Function(TypeNameFunction<'s>), // TODO
+    Never,
+    Pointer(TypeNamePointer<'s>),
+    Reference(TypeNameReference<'s>),
+    Slice(TypeNameSlice<'s>),
+    Struct(TypeNameStruct<'s>),
+    Tuple(TypeNameTuple<'s>),
+    Unit,
 }
 
 impl<'s> TypeName<'s> {
-    /// Returns the module path of the type.
-    pub fn module_path(&self) -> &[&'s str] {
-        &self.module_path
-    }
-
-    /// Returns the simple name of the type, excluding type parameters.
-    pub fn simple_name(&self) -> &'s str {
-        self.simple_name
-    }
-
-    /// Returns the type parameters to the type.
-    pub fn type_params(&self) -> &[TypeName<'s>] {
-        &self.type_params
-    }
-
     /// Returns the type name string without any module paths.
     ///
     /// This is equivalent to calling `TypeName::as_str_mn(0, 0);`
@@ -52,6 +41,220 @@ impl<'s> TypeName<'s> {
             .unwrap_or_else(|e| panic!("Failed to write `TypeName` as String. Error: `{}`.", e));
 
         buffer
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        match self {
+            Self::None => Ok(()),
+            Self::Array(type_name_array) => type_name_array.write_str(buffer, m, n),
+            Self::Never => buffer.write_str("!"),
+            Self::Pointer(type_name_pointer) => type_name_pointer.write_str(buffer, m, n),
+            Self::Reference(type_name_reference) => type_name_reference.write_str(buffer, m, n),
+            Self::Slice(type_name_slice) => type_name_slice.write_str(buffer, m, n),
+            Self::Struct(type_name_struct) => type_name_struct.write_str(buffer, m, n),
+            Self::Tuple(type_name_tuple) => type_name_tuple.write_str(buffer, m, n),
+            Self::Unit => buffer.write_str("()"),
+        }
+    }
+}
+
+/// Type name of an array.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameArray<'s> {
+    /// Type of each array element.
+    pub(crate) type_param: Box<TypeName<'s>>,
+    /// Array length.
+    pub(crate) len: &'s str,
+}
+
+impl<'s> TypeNameArray<'s> {
+    /// Returns the type parameter of this type.
+    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+        &self.type_param
+    }
+
+    /// Returns the type parameter of this type.
+    pub fn len(&self) -> &str {
+        self.len
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        buffer.write_str("[")?;
+        self.type_param.write_str(buffer, m, n)?;
+        buffer.write_str("; ")?;
+        buffer.write_str(self.len)?;
+        buffer.write_str("]")
+    }
+}
+
+/// Type name of a pointer.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNamePointer<'s> {
+    /// Type of pointer.
+    pub(crate) const_or_mut: &'s str,
+    /// Type pointed to.
+    pub(crate) type_param: Box<TypeName<'s>>,
+}
+
+impl<'s> TypeNamePointer<'s> {
+    /// Returns the `"const"` or `"mut"` str.
+    pub fn const_or_mut(&self) -> &str {
+        self.const_or_mut
+    }
+
+    /// Returns the type parameter of this type.
+    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+        &self.type_param
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        buffer.write_str("* ")?;
+        buffer.write_str(self.const_or_mut)?;
+        buffer.write_str(" ")?;
+        self.type_param.write_str(buffer, m, n)
+    }
+}
+
+/// Type name of a reference.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameReference<'s> {
+    /// Type of reference.
+    pub(crate) mutable: bool,
+    /// Type referenced.
+    pub(crate) type_param: Box<TypeName<'s>>,
+}
+
+impl<'s> TypeNameReference<'s> {
+    /// Returns whether the reference is mutable.
+    pub fn mutable(&self) -> bool {
+        self.mutable
+    }
+
+    /// Returns the type parameter of this type.
+    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+        &self.type_param
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        buffer.write_str("&")?;
+        if self.mutable {
+            buffer.write_str("mut ")?;
+        }
+        self.type_param.write_str(buffer, m, n)
+    }
+}
+
+/// Type name of a slice.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameSlice<'s> {
+    /// Type of each slice element.
+    pub(crate) type_param: Box<TypeName<'s>>,
+}
+
+impl<'s> TypeNameSlice<'s> {
+    /// Returns the type parameter of this type.
+    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+        &self.type_param
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        // Don't need to prepend with `"&"` because slices are always passed in as references.
+        buffer.write_str("[")?;
+        self.type_param.write_str(buffer, m, n)?;
+        buffer.write_str("]")
+    }
+}
+
+/// Type name of a struct.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameStruct<'s> {
+    /// Module path of this type.
+    pub(crate) module_path: Vec<&'s str>,
+    /// Simple type name, excluding type parameters.
+    pub(crate) simple_name: &'s str,
+    /// Type parameters to this type.
+    pub(crate) type_params: Vec<TypeName<'s>>,
+}
+
+impl<'s> TypeNameStruct<'s> {
+    /// Returns the module path of the type.
+    pub fn module_path(&self) -> &[&'s str] {
+        &self.module_path
+    }
+
+    /// Returns the simple name of the type, excluding type parameters.
+    pub fn simple_name(&self) -> &'s str {
+        self.simple_name
+    }
+
+    /// Returns the type parameters of this type.
+    pub fn type_params(&self) -> &[TypeName<'s>] {
+        &self.type_params
     }
 
     /// Writes the type name string to the given buffer.
@@ -165,6 +368,57 @@ impl<'s> TypeName<'s> {
     }
 }
 
+/// Type name of a tuple.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameTuple<'s> {
+    /// Type parameters to this type.
+    pub(crate) type_params: Vec<TypeName<'s>>,
+}
+
+impl<'s> TypeNameTuple<'s> {
+    /// Returns the type parameters of this type.
+    pub fn type_params(&self) -> &[TypeName<'s>] {
+        &self.type_params
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        if self.type_params.len() > 0 {
+            buffer.write_str("(")?;
+
+            if let Some((first, rest)) = self.type_params.split_first() {
+                first.write_str(buffer, m, n)?;
+
+                if self.type_params.len() == 1 {
+                    buffer.write_str(",")?; // Always write `,` after first type.
+                } else {
+                    rest.iter().try_for_each(|type_param| {
+                        buffer
+                            .write_str(", ")
+                            .and_then(|_| type_param.write_str(buffer, m, n))
+                    })?;
+                }
+            }
+
+            buffer.write_str(")")?;
+        }
+
+        Ok(())
+    }
+}
+
 impl<'s> From<&'s str> for TypeName<'s> {
     fn from(std_type_name: &'s str) -> Self {
         parser::type_name(std_type_name)
@@ -182,24 +436,24 @@ impl<'s> From<&'s str> for TypeName<'s> {
 mod tests {
     use pretty_assertions::assert_eq;
 
-    use super::TypeName;
+    use super::{TypeName, TypeNameStruct};
 
     macro_rules! type_name_simple {
         () => {{
-            TypeName {
+            TypeName::Struct(TypeNameStruct {
                 module_path: vec!["tynm", "types", "tests"],
                 simple_name: "Simple",
                 type_params: Vec::new(),
-            }
+            })
         }};
     }
     macro_rules! type_name_type_param_single {
         () => {{
-            TypeName {
+            TypeName::Struct(TypeNameStruct {
                 module_path: vec!["tynm", "types", "tests"],
                 simple_name: "TypeParamSingle",
                 type_params: vec![type_name_simple!()],
-            }
+            })
         }};
     }
 
@@ -223,11 +477,11 @@ mod tests {
 
     #[test]
     fn parse_nested_type_parameterized_struct() {
-        let expected = TypeName {
+        let expected = TypeName::Struct(TypeNameStruct {
             module_path: vec!["tynm", "types", "tests"],
             simple_name: "TypeParamSingle",
             type_params: vec![type_name_type_param_single!()],
-        };
+        });
 
         let actual = TypeName::from(std::any::type_name::<
             TypeParamSingle<TypeParamSingle<Simple>>,
@@ -238,11 +492,11 @@ mod tests {
 
     #[test]
     fn parse_multi_type_parameterized_struct() {
-        let expected = TypeName {
+        let expected = TypeName::Struct(TypeNameStruct {
             module_path: vec!["tynm", "types", "tests"],
             simple_name: "TypeParamDouble",
             type_params: vec![type_name_simple!(), type_name_simple!()],
-        };
+        });
 
         let actual = TypeName::from(std::any::type_name::<TypeParamDouble<Simple, Simple>>());
 
@@ -251,14 +505,14 @@ mod tests {
 
     #[test]
     fn parse_nested_multi_type_parameterized_struct() {
-        let expected = TypeName {
+        let expected = TypeName::Struct(TypeNameStruct {
             module_path: vec!["tynm", "types", "tests"],
             simple_name: "TypeParamDouble",
             type_params: vec![
                 type_name_type_param_single!(),
                 type_name_type_param_single!(),
             ],
-        };
+        });
 
         let actual = TypeName::from(std::any::type_name::<
             TypeParamDouble<TypeParamSingle<Simple>, TypeParamSingle<Simple>>,
