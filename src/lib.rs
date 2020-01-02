@@ -173,6 +173,12 @@ mod tests {
     }
 
     #[test]
+    fn type_name_slice() {
+        dbg!(crate::TypeName::from(std::any::type_name::<&[u32]>()));
+        assert_eq!(type_name::<&[u32]>(), "&[u32]");
+    }
+
+    #[test]
     fn type_name_unit_tuple() {
         assert_eq!(type_name::<()>(), "()");
         assert_eq!(type_name::<(Option<String>,)>(), "(Option<String>,)");

@@ -223,7 +223,8 @@ impl<'s> TypeNameSlice<'s> {
     where
         W: Write,
     {
-        buffer.write_str("&[")?;
+        // Don't need to prepend with `"&"` because slices are always passed in as references.
+        buffer.write_str("[")?;
         self.type_param.write_str(buffer, m, n)?;
         buffer.write_str("]")
     }
