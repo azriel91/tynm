@@ -134,3 +134,59 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String {
     let type_name = TypeName::from(type_name_qualified);
     type_name.as_str_mn(m, n)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::type_name;
+
+    #[test]
+    fn type_name_primitives() {
+        assert_eq!(type_name::<usize>(), "usize");
+        assert_eq!(type_name::<u8>(), "u8");
+        assert_eq!(type_name::<u16>(), "u16");
+        assert_eq!(type_name::<u32>(), "u32");
+        assert_eq!(type_name::<u64>(), "u64");
+        assert_eq!(type_name::<u128>(), "u128");
+
+        assert_eq!(type_name::<isize>(), "isize");
+        assert_eq!(type_name::<i8>(), "i8");
+        assert_eq!(type_name::<i16>(), "i16");
+        assert_eq!(type_name::<i32>(), "i32");
+        assert_eq!(type_name::<i64>(), "i64");
+        assert_eq!(type_name::<i128>(), "i128");
+
+        assert_eq!(type_name::<f32>(), "f32");
+        assert_eq!(type_name::<f64>(), "f64");
+
+        assert_eq!(type_name::<bool>(), "bool");
+        assert_eq!(type_name::<char>(), "char");
+
+        assert_eq!(type_name::<HashMap<u32, String>>(), "HashMap<u32, String>");
+    }
+
+    #[test]
+    fn type_name_array() {
+        assert_eq!(type_name::<[u32; 3]>(), "[u32; 3]");
+        assert_eq!(type_name::<[Option<String>; 3]>(), "[Option<String>; 3]");
+    }
+
+    #[test]
+    fn type_name_unit_tuple() {
+        assert_eq!(type_name::<()>(), "()");
+        assert_eq!(type_name::<(Option<String>,)>(), "(Option<String>,)");
+        assert_eq!(
+            type_name::<(Option<String>, u32)>(),
+            "(Option<String>, u32)"
+        );
+    }
+
+    #[test]
+    fn type_name_reference() {
+        assert_eq!(type_name::<&str>(), "&str");
+
+        assert_eq!(type_name::<&Option<String>>(), "&Option<String>");
+        assert_eq!(type_name::<Option<&String>>(), "Option<&String>");
+    }
+}
