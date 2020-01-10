@@ -46,6 +46,7 @@
 //! [`std::any::type_name`]: https://doc.rust-lang.org/std/any/fn.type_name.html
 
 pub use crate::types::TypeName;
+pub use crate::types::TypeNameDisplay;
 
 mod parser;
 mod types;
@@ -139,7 +140,9 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String {
 mod tests {
     use std::collections::HashMap;
 
+    use super::TypeName;
     use super::type_name;
+    use super::type_namemn;
 
     #[test]
     fn type_name_primitives() {
@@ -194,5 +197,31 @@ mod tests {
 
         assert_eq!(type_name::<&Option<String>>(), "&Option<String>");
         assert_eq!(type_name::<Option<&String>>(), "Option<&String>");
+    }
+
+    #[test]
+    fn type_name_display() {
+        use std::sync::atomic::AtomicI8;
+
+        type T<'a> = Box<HashMap<Option<String>, &'a AtomicI8>>;
+
+        let tn: TypeName = TypeName::new::<T>();
+
+        let display = tn.as_display();
+        let string = format!("{}", display);
+        assert_eq!(type_name::<T>(), string);
+    }
+
+    #[test]
+    fn type_name_display_mn() {
+        use std::sync::atomic::AtomicI8;
+
+        type T<'a> = Box<HashMap<Option<String>, &'a AtomicI8>>;
+
+        let tn: TypeName = TypeName::new::<T>();
+
+        let display = tn.as_display_mn(1,0);
+        let string = format!("{}", display);
+        assert_eq!(type_namemn::<T>(1,0), string);
     }
 }

@@ -1,6 +1,34 @@
 use std::fmt::{Error, Write};
+use std::fmt;
 
 use crate::parser;
+
+/// Helper struct for printing type names directly to `format!`.
+///
+/// This struct warps `TypeName` and implements `fmd::Display` to serve as
+/// `{}` argument to `format!` and similar macros.
+/// It can be obtained by the `as_display` and `as_display_mn` method.
+///
+/// # Example
+///
+/// ```
+/// use tynm::TypeName;
+///
+/// let tn = TypeName::new::<usize>();
+///
+/// println!("{}", tn.as_display());
+/// ```
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameDisplay<'s> {
+    inner: &'s TypeName<'s>,
+    parameters: (usize, usize),
+}
+
+impl<'s> fmt::Display for TypeNameDisplay<'s> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.inner.write_str(f, self.parameters.0, self.parameters.1)
+    }
+}
 
 /// Organizes type name string into distinct parts.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -18,6 +46,13 @@ pub enum TypeName<'s> {
 }
 
 impl<'s> TypeName<'s> {
+    /// Constructs a new TypeName with the name of `T`.
+    ///
+    /// This is equivalent to calling `std::any::type_name::<T>().into()`
+    pub fn new<T>() -> Self {
+        std::any::type_name::<T>().into()
+    }
+
     /// Returns the type name string without any module paths.
     ///
     /// This is equivalent to calling `TypeName::as_str_mn(0, 0);`
@@ -41,6 +76,61 @@ impl<'s> TypeName<'s> {
             .unwrap_or_else(|e| panic!("Failed to write `TypeName` as String. Error: `{}`.", e));
 
         buffer
+    }
+
+    /// Returns an object that implements `fmt::Display` for printing the type
+    /// name without any module paths directly with `format!` and `{}`.
+    ///
+    /// When using this type name in a `format!` or similar it is more efficient
+    /// to use this display instead of first creating a string.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use tynm::TypeName;
+    ///
+    /// let tn = TypeName::new::<String>();
+    ///
+    /// println!("{}", tn.as_display());
+    /// ```
+    ///
+    pub fn as_display(&self) -> TypeNameDisplay {
+        TypeNameDisplay {
+            inner: self,
+            parameters: (0, 0),
+        }
+    }
+
+    /// Returns an object that implements `fmt::Display` for printing the type
+    /// name without any module paths directly with `format!` and `{}`.
+    ///
+    /// When using this type name in a `format!` or similar it is more efficient
+    /// to use this display instead of first creating a string.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use tynm::TypeName;
+    ///
+    /// let tn = TypeName::new::<String>();
+    ///
+    /// println!("{}", tn.as_display_mn(1, 2));
+    /// ```
+    ///
+    pub fn as_display_mn(&self, m: usize, n: usize) -> TypeNameDisplay {
+        TypeNameDisplay {
+            inner: self,
+            parameters: (m, n),
+        }
     }
 
     /// Writes the type name string to the given buffer.
