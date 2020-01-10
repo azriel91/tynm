@@ -13,7 +13,7 @@ use crate::parser;
 ///
 /// # Example
 ///
-/// ```
+/// ```rust
 /// use tynm::TypeName;
 ///
 /// let tn = TypeName::new::<usize>();
@@ -89,7 +89,7 @@ impl<'s> TypeName<'s> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use tynm::TypeName;
     ///
     /// let tn = TypeName::new::<String>();
@@ -120,7 +120,7 @@ impl<'s> TypeName<'s> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use tynm::TypeName;
     ///
     /// let tn = TypeName::new::<String>();
