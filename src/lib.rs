@@ -45,8 +45,7 @@
 //!
 //! [`std::any::type_name`]: https://doc.rust-lang.org/std/any/fn.type_name.html
 
-pub use crate::types::TypeName;
-pub use crate::types::TypeNameDisplay;
+pub use crate::types::{TypeName, TypeNameDisplay};
 
 mod parser;
 mod types;
@@ -140,9 +139,7 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use super::TypeName;
-    use super::type_name;
-    use super::type_namemn;
+    use super::{type_name, type_namemn, TypeName};
 
     #[test]
     fn type_name_primitives() {
@@ -220,8 +217,8 @@ mod tests {
 
         let tn: TypeName = TypeName::new::<T>();
 
-        let display = tn.as_display_mn(1,0);
+        let display = tn.as_display_mn(1, 0);
         let string = format!("{}", display);
-        assert_eq!(type_namemn::<T>(1,0), string);
+        assert_eq!(type_namemn::<T>(1, 0), string);
     }
 }
