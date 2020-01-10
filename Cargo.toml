@@ -1,6 +1,6 @@
 [package]
 name = "tynm"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Azriel Hoh <azriel91@gmail.com>"]
 edition = "2018"
 description = "Returns type names in shorter form."
@@ -10,7 +10,7 @@ keywords = ["typename", "type", "name"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-nom = "5.0.1"
+nom = "5.1.0"
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"

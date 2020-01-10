@@ -1,5 +1,7 @@
-use std::fmt::{Error, Write};
-use std::fmt;
+use std::{
+    fmt,
+    fmt::{Error, Write},
+};
 
 use crate::parser;
 
@@ -11,7 +13,7 @@ use crate::parser;
 ///
 /// # Example
 ///
-/// ```
+/// ```rust
 /// use tynm::TypeName;
 ///
 /// let tn = TypeName::new::<usize>();
@@ -26,7 +28,8 @@ pub struct TypeNameDisplay<'s> {
 
 impl<'s> fmt::Display for TypeNameDisplay<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.inner.write_str(f, self.parameters.0, self.parameters.1)
+        self.inner
+            .write_str(f, self.parameters.0, self.parameters.1)
     }
 }
 
@@ -86,14 +89,13 @@ impl<'s> TypeName<'s> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use tynm::TypeName;
     ///
     /// let tn = TypeName::new::<String>();
     ///
     /// println!("{}", tn.as_display());
     /// ```
-    ///
     pub fn as_display(&self) -> TypeNameDisplay {
         TypeNameDisplay {
             inner: self,
@@ -118,14 +120,13 @@ impl<'s> TypeName<'s> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use tynm::TypeName;
     ///
     /// let tn = TypeName::new::<String>();
     ///
     /// println!("{}", tn.as_display_mn(1, 2));
     /// ```
-    ///
     pub fn as_display_mn(&self, m: usize, n: usize) -> TypeNameDisplay {
         TypeNameDisplay {
             inner: self,

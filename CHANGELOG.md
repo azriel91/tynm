@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 (2020-01-10)
+
+* `TypeName::new::<T>()` returns a `TypeName` instance for `T` without constructing the String. ([#3])
+* `TypeName::as_display()` and `TypeName::as_display_mn()` both return a `TypeNameDisplay`, allowing one to pass around a `Display` object. ([#3])
+
+[#3]: https://github.com/azriel91/tynm/pulls/3
+
 ## 0.1.1 (2020-01-02)
 
 * Support named primitive types (`usize`, `u*`, ..). ([#1])
