@@ -5,6 +5,7 @@ authors = ["Azriel Hoh <azriel91@gmail.com>"]
 edition = "2018"
 description = "Returns type names in shorter form."
 repository = "https://github.com/azriel91/tynm"
+documentation = "https://docs.rs/tynm/"
 readme = "README.md"
 keywords = ["typename", "type", "name"]
 license = "MIT OR Apache-2.0"
