@@ -214,7 +214,7 @@ pub fn type_name(input: &str) -> IResult<&str, TypeName> {
     if let Some(first_char) = input.chars().next() {
         match first_char {
             '[' => array_or_slice(input),
-            '*' => todo!("pointer"),
+            '*' => unimplemented!("`tynm` is not implemented for pointer types."),
             '!' => nom::character::complete::char('!')(input)
                 .map(|(input, _)| (input, TypeName::Never)),
             '&' => parse_reference(input),

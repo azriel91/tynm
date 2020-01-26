@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+* Use `unimplemented!` macro instead of `todo!` to support Rust 1.38.0. ([#5])
+
+[#5]: https://github.com/azriel91/tynm/pulls/5
+
 ## 0.1.2 (2020-01-10)
 
 * `TypeName::new::<T>()` returns a `TypeName` instance for `T` without constructing the String. ([#3])
