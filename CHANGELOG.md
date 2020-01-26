@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 (2020-01-27)
 
 * Use `unimplemented!` macro instead of `todo!` to support Rust 1.38.0. ([#5])
 
