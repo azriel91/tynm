@@ -139,7 +139,7 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use super::{type_name, type_namemn, TypeName};
+    use super::{type_name, type_namem, type_namemn, TypeName};
 
     #[test]
     fn type_name_primitives() {
@@ -220,5 +220,11 @@ mod tests {
         let display = tn.as_display_mn(1, 0);
         let string = format!("{}", display);
         assert_eq!(type_namemn::<T>(1, 0), string);
+    }
+    
+    #[test]
+    fn type_name_usize_mn() {
+    	assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
+    	assert_eq!(type_namemn::<usize>(std::usize::MAX, std::usize::MAX), "::usize");
     }
 }

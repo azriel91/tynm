@@ -381,7 +381,7 @@ impl<'s> TypeNameStruct<'s> {
     where
         W: Write,
     {
-        let module_segment_count = m + n;
+        let module_segment_count = m.saturating_add(n);
 
         if module_segment_count >= self.module_path.len() {
             // Print full module path
