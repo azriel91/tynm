@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4 (2020-03-07)
+
+* Don't overflow when segment count exceeds `usize::MAX`. ([#7])
+* Build `nom` without `"lexical"` feature.
+
+[#7]: https://github.com/azriel91/tynm/pulls/7
+
 ## 0.1.3 (2020-01-27)
 
 * Use `unimplemented!` macro instead of `todo!` to support Rust 1.38.0. ([#5])
