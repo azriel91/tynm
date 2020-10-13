@@ -8,35 +8,26 @@
 Returns type names with a specifiable number of module segments as a `String`.
 
 ```rust
-// === std library === //
-assert_eq!(
-    std::any::type_name::<Option<String>>(),
-    "core::option::Option<alloc::string::String>",
-);
-
-// === tynm === //
-// Simple type name:
-assert_eq!(tynm::type_name::<Option<String>>(), "Option<String>",);
-
-// Type name with 1 module segment, starting from the most significant module.
-assert_eq!(
-    tynm::type_namem::<Option<String>>(1),
-    "core::..::Option<alloc::..::String>",
-);
-
-// Type name with 1 module segment, starting from the least significant module.
-assert_eq!(
-    tynm::type_namen::<Option<String>>(1),
-    "..::option::Option<..::string::String>",
-);
-
-// Type name with 1 module segment from both the most and least significant modules.
 #[rustfmt::skip]
-mod rust_out { pub mod two { pub mod three { pub struct Struct; } } }
 assert_eq!(
-    tynm::type_namemn::<rust_out::two::three::Struct>(1, 1),
-    "rust_out::..::three::Struct",
+    std::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
 );
+
+#[rustfmt::skip]
+let tuples = vec![
+    (tynm::type_name::<Option<String>>(),    "Option<String>"),
+    (tynm::type_namem::<Option<String>>(1),  "core::..::Option<alloc::..::String>"),
+    (tynm::type_namen::<Option<String>>(1),  "..::option::Option<..::string::String>"),
+    // 1 segment from most and least significant modules.
+    (tynm::type_namemn::<rust_out::two::three::Struct>(1, 1), "rust_out::..::three::Struct"),
+    // traits
+    (tynm::type_name::<dyn core::fmt::Debug>(), "dyn Debug"),
+];
+
+tuples
+    .iter()
+    .for_each(|(left, right)| assert_eq!(left, right));
+
 ```
 
 ## Motivation
