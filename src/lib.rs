@@ -221,10 +221,13 @@ mod tests {
         let string = format!("{}", display);
         assert_eq!(type_namemn::<T>(1, 0), string);
     }
-    
+
     #[test]
     fn type_name_usize_mn() {
-    	assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
-    	assert_eq!(type_namemn::<usize>(std::usize::MAX, std::usize::MAX), "::usize");
+        assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
+        assert_eq!(
+            type_namemn::<usize>(std::usize::MAX, std::usize::MAX),
+            "::usize"
+        );
     }
 }
