@@ -151,7 +151,7 @@ where
 mod tests {
     use std::collections::HashMap;
 
-    use super::{type_name, type_namem, type_namemn, TypeName};
+    use super::{type_name, type_namem, type_namemn, type_namen, TypeName};
 
     #[test]
     fn type_name_primitives() {
@@ -245,6 +245,16 @@ mod tests {
 
     #[test]
     fn type_name_unsized() {
-        assert_eq!(type_name::<dyn std::fmt::Debug>(), "std::fmt::Debug");
+        assert_eq!(type_name::<dyn core::fmt::Debug>(), "dyn Debug");
+    }
+
+    #[test]
+    fn type_name_unsized_mn() {
+        assert_eq!(type_namem::<dyn core::fmt::Debug>(1), "dyn core::..::Debug");
+        assert_eq!(type_namen::<dyn core::fmt::Debug>(1), "dyn ..::fmt::Debug");
+        assert_eq!(
+            type_namemn::<dyn core::fmt::Debug>(0, 1),
+            "dyn ..::fmt::Debug"
+        );
     }
 }

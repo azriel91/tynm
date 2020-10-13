@@ -45,6 +45,7 @@ pub enum TypeName<'s> {
     Slice(TypeNameSlice<'s>),
     Struct(TypeNameStruct<'s>),
     Tuple(TypeNameTuple<'s>),
+    Trait(TypeNameTrait<'s>),
     Unit,
 }
 
@@ -157,6 +158,7 @@ impl<'s> TypeName<'s> {
             Self::Slice(type_name_slice) => type_name_slice.write_str(buffer, m, n),
             Self::Struct(type_name_struct) => type_name_struct.write_str(buffer, m, n),
             Self::Tuple(type_name_tuple) => type_name_tuple.write_str(buffer, m, n),
+            Self::Trait(type_name_trait) => type_name_trait.write_str(buffer, m, n),
             Self::Unit => buffer.write_str("()"),
         }
     }
@@ -507,6 +509,94 @@ impl<'s> TypeNameTuple<'s> {
         }
 
         Ok(())
+    }
+}
+
+/// Type name of a trait.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TypeNameTrait<'s> {
+    /// Share implementation with [`TypeNameStruct`]
+    pub(crate) inner: TypeNameStruct<'s>,
+}
+
+impl<'s> TypeNameTrait<'s> {
+    /// Returns the module path of the type.
+    pub fn module_path(&self) -> &[&'s str] {
+        &self.inner.module_path
+    }
+
+    /// Returns the simple name of the type, excluding type parameters.
+    pub fn simple_name(&self) -> &'s str {
+        self.inner.simple_name
+    }
+
+    /// Returns the type parameters of this type.
+    pub fn type_params(&self) -> &[TypeName<'s>] {
+        &self.inner.type_params
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        buffer.write_str("dyn ")?;
+        self.inner.write_str(buffer, m, n)
+    }
+
+    /// Writes the module path to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_module_path<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        self.inner.write_module_path(buffer, m, n)
+    }
+
+    /// Writes the simple name to the given buffer.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    pub fn write_simple_name<W>(&self, buffer: &mut W) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        self.inner.write_simple_name(buffer)
+    }
+
+    /// Writes type parameters to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn write_type_params<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        self.inner.write_type_params(buffer, m, n)
     }
 }
 

@@ -9,7 +9,8 @@ use nom::{
 };
 
 use crate::types::{
-    TypeName, TypeNameArray, TypeNameReference, TypeNameSlice, TypeNameStruct, TypeNameTuple,
+    TypeName, TypeNameArray, TypeNameReference, TypeNameSlice, TypeNameStruct, TypeNameTrait,
+    TypeNameTuple,
 };
 
 /// List of known primitive types
@@ -156,12 +157,7 @@ pub fn parse_unit_or_tuple(input: &str) -> IResult<&str, TypeName> {
     alt((parse_unit, parse_tuple))(input)
 }
 
-pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
-    // Check for primitive types first, otherwise we cannot distinguish the `std::u32` module from
-    // `u32` (type).
-    //
-    // We shouldn't have to worry about `use crate::u32; u32::SomeType` as the type name input
-    // should be the fully qualified crate name as determined by Rust.
+pub fn named_primitive(input: &str) -> Option<IResult<&str, TypeName>> {
     if let Some(prim_type) = PRIMITIVE_TYPES
         .iter()
         .find(|prim_type| input.starts_with(*prim_type))
@@ -177,30 +173,61 @@ pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
 
         if is_primitive_type {
             // Treat this as a type.
-            return Ok((
+            Some(Ok((
                 remainder,
                 TypeName::Struct(TypeNameStruct {
                     module_path: vec![],
                     simple_name: prim_type,
                     type_params: vec![],
                 }),
-            ));
+            )))
+        } else {
+            None
         }
+    } else {
+        None
     }
+}
 
+pub fn struct_type(input: &str) -> IResult<&str, TypeNameStruct> {
     // Parse this as a module name
     tuple((module_path, type_simple_name, type_parameters))(input).map(
         |(s, (module_path, simple_name, type_params))| {
             (
                 s,
-                TypeName::Struct(TypeNameStruct {
+                TypeNameStruct {
                     module_path,
                     simple_name,
                     type_params,
-                }),
+                },
             )
         },
     )
+}
+
+pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
+    // Check for primitive types first, otherwise we cannot distinguish the `std::u32` module from
+    // `u32` (type).
+    //
+    // We shouldn't have to worry about `use crate::u32; u32::SomeType` as the type name input
+    // should be the fully qualified crate name as determined by Rust.
+    if let Some(result) = named_primitive(input) {
+        result
+    } else {
+        struct_type(input)
+            .map(|(input, type_name_struct)| (input, TypeName::Struct(type_name_struct)))
+    }
+}
+
+pub fn trait_type(input: &str) -> IResult<&str, TypeName> {
+    struct_type(input).map(|(input, type_name_struct)| {
+        (
+            input,
+            TypeName::Trait(TypeNameTrait {
+                inner: type_name_struct,
+            }),
+        )
+    })
 }
 
 /// Parses a type name.
@@ -211,7 +238,8 @@ pub fn type_name(input: &str) -> IResult<&str, TypeName> {
     //
     // In addition, types may begin with symbols, and we should detect them here and branch to the
     // relevant parsing functions.
-    if let Some(first_char) = input.chars().next() {
+    let mut chars = input.chars();
+    if let Some(first_char) = chars.next() {
         match first_char {
             '[' => array_or_slice(input),
             '*' => unimplemented!("`tynm` is not implemented for pointer types."),
@@ -219,6 +247,27 @@ pub fn type_name(input: &str) -> IResult<&str, TypeName> {
                 .map(|(input, _)| (input, TypeName::Never)),
             '&' => parse_reference(input),
             '(' => parse_unit_or_tuple(input),
+            'd' => {
+                let mut split = input.splitn(2, ' ');
+                if let Some("dyn") = split.next() {
+                    if let Some(remainder) = split.next() {
+                        trait_type(remainder)
+                    } else {
+                        // We only have "dyn" as a token. User may have specified r#dyn as a struct name or function
+                        // name, but this is unusual. For now, we treat it as a struct.
+                        Ok((
+                            "",
+                            TypeName::Struct(TypeNameStruct {
+                                module_path: vec![],
+                                simple_name: "dyn",
+                                type_params: vec![],
+                            }),
+                        ))
+                    }
+                } else {
+                    named_primitive_or_struct(input)
+                }
+            }
             _ => named_primitive_or_struct(input),
         }
     } else {
