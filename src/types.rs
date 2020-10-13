@@ -53,7 +53,7 @@ impl<'s> TypeName<'s> {
     /// Constructs a new TypeName with the name of `T`.
     ///
     /// This is equivalent to calling `std::any::type_name::<T>().into()`
-    pub fn new<T>() -> Self {
+    pub fn new<T: ?Sized>() -> Self {
         std::any::type_name::<T>().into()
     }
 
