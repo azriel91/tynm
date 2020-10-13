@@ -3,35 +3,28 @@
 //! Returns type names with a specifiable number of module segments as a `String`.
 //!
 //! ```rust
-//! // === std library === //
-//! assert_eq!(
-//!     std::any::type_name::<Option<String>>(),
-//!     "core::option::Option<alloc::string::String>",
-//! );
-//!
-//! // === tynm === //
-//! // Simple type name:
-//! assert_eq!(tynm::type_name::<Option<String>>(), "Option<String>",);
-//!
-//! // Type name with 1 module segment, starting from the most significant module.
-//! assert_eq!(
-//!     tynm::type_namem::<Option<String>>(1),
-//!     "core::..::Option<alloc::..::String>",
-//! );
-//!
-//! // Type name with 1 module segment, starting from the least significant module.
-//! assert_eq!(
-//!     tynm::type_namen::<Option<String>>(1),
-//!     "..::option::Option<..::string::String>",
-//! );
-//!
-//! // Type name with 1 module segment from both the most and least significant modules.
 //! #[rustfmt::skip]
-//! mod rust_out { pub mod two { pub mod three { pub struct Struct; } } }
 //! assert_eq!(
-//!     tynm::type_namemn::<rust_out::two::three::Struct>(1, 1),
-//!     "rust_out::..::three::Struct",
+//!     std::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
 //! );
+//!
+//! #[rustfmt::skip]
+//! let tuples = vec![
+//!     (tynm::type_name::<Option<String>>(),    "Option<String>"),
+//!     (tynm::type_namem::<Option<String>>(1),  "core::..::Option<alloc::..::String>"),
+//!     (tynm::type_namen::<Option<String>>(1),  "..::option::Option<..::string::String>"),
+//!     // 1 segment from most and least significant modules.
+//!     (tynm::type_namemn::<rust_out::two::three::Struct>(1, 1), "rust_out::..::three::Struct"),
+//!     // traits
+//!     (tynm::type_name::<dyn core::fmt::Debug>(), "dyn Debug"),
+//! ];
+//!
+//! tuples
+//!     .iter()
+//!     .for_each(|(left, right)| assert_eq!(left, right));
+//!
+//! # #[rustfmt::skip]
+//! # mod rust_out { pub mod two { pub mod three { pub struct Struct; } } }
 //! ```
 //!
 //! # Motivation
@@ -61,7 +54,10 @@ mod types;
 /// ```rust
 /// assert_eq!(tynm::type_name::<Option<String>>(), "Option<String>",);
 /// ```
-pub fn type_name<T>() -> String {
+pub fn type_name<T>() -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(0, 0)
 }
 
@@ -83,7 +79,10 @@ pub fn type_name<T>() -> String {
 ///     "core::..::Option<alloc::..::String>",
 /// );
 /// ```
-pub fn type_namem<T>(m: usize) -> String {
+pub fn type_namem<T>(m: usize) -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(m, 0)
 }
 
@@ -105,7 +104,10 @@ pub fn type_namem<T>(m: usize) -> String {
 ///     "..::option::Option<..::string::String>",
 /// );
 /// ```
-pub fn type_namen<T>(n: usize) -> String {
+pub fn type_namen<T>(n: usize) -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(0, n)
 }
 
@@ -128,7 +130,10 @@ pub fn type_namen<T>(n: usize) -> String {
 ///     "..::option::Option<..::string::String>",
 /// );
 /// ```
-pub fn type_namemn<T>(m: usize, n: usize) -> String {
+pub fn type_namemn<T>(m: usize, n: usize) -> String
+where
+    T: ?Sized,
+{
     let type_name_qualified = std::any::type_name::<T>();
 
     let type_name = TypeName::from(type_name_qualified);
@@ -139,7 +144,7 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use super::{type_name, type_namem, type_namemn, TypeName};
+    use super::{type_name, type_namem, type_namemn, type_namen, TypeName};
 
     #[test]
     fn type_name_primitives() {
@@ -221,10 +226,28 @@ mod tests {
         let string = format!("{}", display);
         assert_eq!(type_namemn::<T>(1, 0), string);
     }
-    
+
     #[test]
     fn type_name_usize_mn() {
-    	assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
-    	assert_eq!(type_namemn::<usize>(std::usize::MAX, std::usize::MAX), "::usize");
+        assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
+        assert_eq!(
+            type_namemn::<usize>(std::usize::MAX, std::usize::MAX),
+            "::usize"
+        );
+    }
+
+    #[test]
+    fn type_name_unsized() {
+        assert_eq!(type_name::<dyn core::fmt::Debug>(), "dyn Debug");
+    }
+
+    #[test]
+    fn type_name_unsized_mn() {
+        assert_eq!(type_namem::<dyn core::fmt::Debug>(1), "dyn core::..::Debug");
+        assert_eq!(type_namen::<dyn core::fmt::Debug>(1), "dyn ..::fmt::Debug");
+        assert_eq!(
+            type_namemn::<dyn core::fmt::Debug>(0, 1),
+            "dyn ..::fmt::Debug"
+        );
     }
 }

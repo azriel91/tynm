@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5 (2020-10-13)
+
+* Support parsing `dyn Trait`. ([#9], [#10])
+
+[#9]: https://github.com/azriel91/tynm/issues/9
+[#10]: https://github.com/azriel91/tynm/pulls/10
+
 ## 0.1.4 (2020-03-07)
 
 * Don't overflow when segment count exceeds `usize::MAX`. ([#7])
