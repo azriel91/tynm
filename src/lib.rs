@@ -61,7 +61,10 @@ mod types;
 /// ```rust
 /// assert_eq!(tynm::type_name::<Option<String>>(), "Option<String>",);
 /// ```
-pub fn type_name<T>() -> String {
+pub fn type_name<T>() -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(0, 0)
 }
 
@@ -83,7 +86,10 @@ pub fn type_name<T>() -> String {
 ///     "core::..::Option<alloc::..::String>",
 /// );
 /// ```
-pub fn type_namem<T>(m: usize) -> String {
+pub fn type_namem<T>(m: usize) -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(m, 0)
 }
 
@@ -105,7 +111,10 @@ pub fn type_namem<T>(m: usize) -> String {
 ///     "..::option::Option<..::string::String>",
 /// );
 /// ```
-pub fn type_namen<T>(n: usize) -> String {
+pub fn type_namen<T>(n: usize) -> String
+where
+    T: ?Sized,
+{
     type_namemn::<T>(0, n)
 }
 
@@ -128,7 +137,10 @@ pub fn type_namen<T>(n: usize) -> String {
 ///     "..::option::Option<..::string::String>",
 /// );
 /// ```
-pub fn type_namemn<T>(m: usize, n: usize) -> String {
+pub fn type_namemn<T>(m: usize, n: usize) -> String
+where
+    T: ?Sized,
+{
     let type_name_qualified = std::any::type_name::<T>();
 
     let type_name = TypeName::from(type_name_qualified);
@@ -229,5 +241,10 @@ mod tests {
             type_namemn::<usize>(std::usize::MAX, std::usize::MAX),
             "::usize"
         );
+    }
+
+    #[test]
+    fn type_name_unsized() {
+        assert_eq!(type_name::<dyn std::fmt::Debug>(), "std::fmt::Debug");
     }
 }
