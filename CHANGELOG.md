@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.6 (2020-10-13)
+## 0.1.6 (2020-10-16)
 
 * Support creating `TypeName` from `dyn Trait`.
 
