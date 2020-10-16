@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 (2020-10-13)
+
+* Support creating `TypeName` from `dyn Trait`.
+
 ## 0.1.5 (2020-10-13)
 
 * Support parsing `dyn Trait`. ([#9], [#10])
