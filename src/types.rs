@@ -175,7 +175,7 @@ pub struct TypeNameArray<'s> {
 
 impl<'s> TypeNameArray<'s> {
     /// Returns the type parameter of this type.
-    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+    pub fn type_param(&self) -> &TypeName<'s> {
         &self.type_param
     }
 
@@ -222,7 +222,7 @@ impl<'s> TypeNamePointer<'s> {
     }
 
     /// Returns the type parameter of this type.
-    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+    pub fn type_param(&self) -> &TypeName<'s> {
         &self.type_param
     }
 
@@ -263,7 +263,7 @@ impl<'s> TypeNameReference<'s> {
     }
 
     /// Returns the type parameter of this type.
-    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+    pub fn type_param(&self) -> &TypeName<'s> {
         &self.type_param
     }
 
@@ -298,7 +298,7 @@ pub struct TypeNameSlice<'s> {
 
 impl<'s> TypeNameSlice<'s> {
     /// Returns the type parameter of this type.
-    pub fn type_param(&self) -> &Box<TypeName<'s>> {
+    pub fn type_param(&self) -> &TypeName<'s> {
         &self.type_param
     }
 
@@ -442,7 +442,7 @@ impl<'s> TypeNameStruct<'s> {
     where
         W: Write,
     {
-        if self.type_params.len() > 0 {
+        if !self.type_params.is_empty() {
             buffer.write_str("<")?;
 
             if let Some((first, rest)) = self.type_params.split_first() {
@@ -488,7 +488,7 @@ impl<'s> TypeNameTuple<'s> {
     where
         W: Write,
     {
-        if self.type_params.len() > 0 {
+        if !self.type_params.is_empty() {
             buffer.write_str("(")?;
 
             if let Some((first, rest)) = self.type_params.split_first() {
