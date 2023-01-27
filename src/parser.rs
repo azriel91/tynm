@@ -3,7 +3,7 @@ use nom::{
     bytes::complete::{tag, take_until, take_while},
     character::complete::char,
     combinator::opt,
-    multi::separated_list,
+    multi::separated_list0,
     sequence::{delimited, pair, tuple},
     IResult,
 };
@@ -68,7 +68,7 @@ pub fn module_name(input: &str) -> IResult<&str, &str> {
 }
 
 pub fn module_path(input: &str) -> IResult<&str, Vec<&str>> {
-    separated_list(tag("::"), module_name)(input).map(|(input, mut module_names)| {
+    separated_list0(tag("::"), module_name)(input).map(|(input, mut module_names)| {
         module_names.retain(|module_name| !module_name.is_empty());
         (input, module_names)
     })
@@ -89,7 +89,7 @@ pub fn type_simple_name(input: &str) -> IResult<&str, &str> {
 pub fn type_parameters(input: &str) -> IResult<&str, Vec<TypeName>> {
     opt(delimited(
         char('<'),
-        separated_list(tag(", "), type_name),
+        separated_list0(tag(", "), type_name),
         char('>'),
     ))(input)
     .map(|(input, type_params)| (input, type_params.unwrap_or_else(Vec::new)))
@@ -99,7 +99,7 @@ pub fn array_length(input: &str) -> IResult<&str, Option<&str>> {
     pair(tag("; "), take_until("]"))(input)
         .map(|(input, (_, len))| (input, Some(len)))
         .or_else(|e| {
-            if let nom::Err::Error((input, _)) = e {
+            if let nom::Err::Error(nom::error::Error { input, code: _ }) = e {
                 Ok((input, None))
             } else {
                 Err(e)
@@ -144,7 +144,7 @@ pub fn parse_unit(input: &str) -> IResult<&str, TypeName> {
 pub fn parse_tuple(input: &str) -> IResult<&str, TypeName> {
     delimited(
         char('('),
-        separated_list(tag(", "), type_name),
+        separated_list0(tag(", "), type_name),
         tuple((opt(char(',')), char(')'))),
     )(input)
     .map(|(input, type_params)| {

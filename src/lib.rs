@@ -3,6 +3,7 @@
 //! Returns type names with a specifiable number of module segments as a `String`.
 //!
 //! ```rust
+//! # fn main() {
 //! #[rustfmt::skip]
 //! assert_eq!(
 //!     std::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
@@ -22,6 +23,7 @@
 //! tuples
 //!     .iter()
 //!     .for_each(|(left, right)| assert_eq!(left, right));
+//! # }
 //!
 //! # #[rustfmt::skip]
 //! # mod rust_out { pub mod two { pub mod three { pub struct Struct; } } }
