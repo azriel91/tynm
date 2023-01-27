@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 0.1.7 (2023-01-27)
 
 * Update `nom` to `7.1.3` to account for [rust#79813].
 
