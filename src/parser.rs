@@ -92,7 +92,7 @@ pub fn type_parameters(input: &str) -> IResult<&str, Vec<TypeName>> {
         separated_list0(tag(", "), type_name),
         char('>'),
     ))(input)
-    .map(|(input, type_params)| (input, type_params.unwrap_or_else(Vec::new)))
+    .map(|(input, type_params)| (input, type_params.unwrap_or_default()))
 }
 
 pub fn array_length(input: &str) -> IResult<&str, Option<&str>> {

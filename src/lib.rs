@@ -212,7 +212,7 @@ mod tests {
         let tn: TypeName = TypeName::new::<T>();
 
         let display = tn.as_display();
-        let string = format!("{}", display);
+        let string = format!("{display}");
         assert_eq!(type_name::<T>(), string);
     }
 
@@ -225,7 +225,7 @@ mod tests {
         let tn: TypeName = TypeName::new::<T>();
 
         let display = tn.as_display_mn(1, 0);
-        let string = format!("{}", display);
+        let string = format!("{display}");
         assert_eq!(type_namemn::<T>(1, 0), string);
     }
 
