@@ -1,5 +1,12 @@
 # Changelog
 
+## unreleased
+
+* Update `nom` to `7.1.3` to account for [rust#79813].
+
+[#12]: https://github.com/azriel91/tynm/pulls/12
+[rust#79813]: https://github.com/rust-lang/rust/issues/79813
+
 ## 0.1.6 (2020-10-16)
 
 * Support creating `TypeName` from `dyn Trait`.
