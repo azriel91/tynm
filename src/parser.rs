@@ -233,7 +233,7 @@ pub fn trait_type(input: &str) -> IResult<&str, TypeName> {
 /// Parses a type name.
 pub fn type_name(input: &str) -> IResult<&str, TypeName> {
     // Primitive types begin with lowercase letters, but we have to detect them at this level, as
-    // lower parsers (`module_name`, `type_simple_name`) cannot tell if `"std::"` preceeds the input
+    // lower parsers (`module_name`, `type_simple_name`) cannot tell if `"std::"` precedes the input
     // it is given.
     //
     // In addition, types may begin with symbols, and we should detect them here and branch to the
