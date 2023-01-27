@@ -1,7 +1,7 @@
 [![Crates.io](https://img.shields.io/crates/v/tynm.svg)](https://crates.io/crates/tynm)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/azriel91/tynm?branch=master&svg=true)](https://ci.appveyor.com/project/azriel91/tynm/branch/master)
-[![Build Status](https://travis-ci.org/azriel91/tynm.svg?branch=master)](https://travis-ci.org/azriel91/tynm)
-[![Coverage Status](https://codecov.io/gh/azriel91/tynm/branch/master/graph/badge.svg)](https://codecov.io/gh/azriel91/tynm)
+[![docs.rs](https://img.shields.io/docsrs/tynm)](https://docs.rs/tynm)
+[![CI](https://github.com/azriel91/tynm/workflows/CI/badge.svg)](https://github.com/azriel91/tynm/actions/workflows/ci.yml)
+[![Coverage Status](https://codecov.io/gh/azriel91/tynm/branch/main/graph/badge.svg)](https://codecov.io/gh/azriel91/tynm)
 
 # Tynm -- Type Name
 

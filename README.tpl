@@ -1,5 +1,7 @@
 [![Crates.io](https://img.shields.io/crates/v/tynm.svg)](https://crates.io/crates/tynm)
-{{badges}}
+[![docs.rs](https://img.shields.io/docsrs/tynm)](https://docs.rs/tynm)
+[![CI](https://github.com/azriel91/tynm/workflows/CI/badge.svg)](https://github.com/azriel91/tynm/actions/workflows/ci.yml)
+[![Coverage Status](https://codecov.io/gh/azriel91/tynm/branch/main/graph/badge.svg)](https://codecov.io/gh/azriel91/tynm)
 
 # Tynm -- Type Name
 
