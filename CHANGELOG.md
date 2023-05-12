@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8 (2023-05-12)
+
+* Support `#![no_std]`. ([#13], [#14])
+
+[#13]: https://github.com/azriel91/tynm/issues/13
+[#14]: https://github.com/azriel91/tynm/pulls/14
+
 ## 0.1.7 (2023-01-27)
 
 * Update `nom` to `7.1.3` to account for [rust#79813].

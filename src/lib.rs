@@ -3,6 +3,16 @@
 
 //! Returns type names with a specifiable number of module segments as a `String`.
 //!
+//! # Usage
+//!
+//! Add the following to `Cargo.toml`
+//!
+//! ```toml
+//! tynm = "0.1.8"
+//! ```
+//!
+//! In code:
+//!
 //! ```rust
 //! # fn main() {
 //! #[rustfmt::skip]
