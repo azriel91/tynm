@@ -11,10 +11,13 @@ keywords = ["typename", "type", "name"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-nom = { version = "7.1.3", default-features = false, features = ["std"] }
+nom = { version = "7.1.3", default-features = false, features = ["alloc"] }
 
 [dev-dependencies]
 pretty_assertions = "1.3.0"
+
+[features]
+default = []
 
 [badges]
 appveyor = { repository = "azriel91/tynm" }
