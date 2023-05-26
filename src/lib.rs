@@ -1,12 +1,23 @@
+#![no_std]
 // #![deny(missing_docs, missing_debug_implementations)]
 
 //! Returns type names with a specifiable number of module segments as a `String`.
+//!
+//! # Usage
+//!
+//! Add the following to `Cargo.toml`
+//!
+//! ```toml
+//! tynm = "0.1.8"
+//! ```
+//!
+//! In code:
 //!
 //! ```rust
 //! # fn main() {
 //! #[rustfmt::skip]
 //! assert_eq!(
-//!     std::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
+//!     core::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
 //! );
 //!
 //! #[rustfmt::skip]
@@ -31,14 +42,18 @@
 //!
 //! # Motivation
 //!
-//! The [`std::any::type_name`] function stabilized in Rust 1.38 returns the fully qualified type
+//! The [`core::any::type_name`] function stabilized in Rust 1.38 returns the fully qualified type
 //! name with all module segments. This can be difficult to read in error messages, especially for
 //! type-parameterized types.
 //!
 //! Often, the simple type name is more readable, and enough to distinguish the type referenced in
 //! an error.
 //!
-//! [`std::any::type_name`]: https://doc.rust-lang.org/std/any/fn.type_name.html
+//! [`core::any::type_name`]: https://doc.rust-lang.org/std/any/fn.type_name.html
+
+extern crate alloc;
+
+use alloc::string::String;
 
 pub use crate::types::{TypeName, TypeNameDisplay};
 
@@ -136,7 +151,7 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String
 where
     T: ?Sized,
 {
-    let type_name_qualified = std::any::type_name::<T>();
+    let type_name_qualified = core::any::type_name::<T>();
 
     let type_name = TypeName::from(type_name_qualified);
     type_name.as_str_mn(m, n)
@@ -144,7 +159,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use alloc::{boxed::Box, format, string::String, vec::Vec};
 
     use super::{type_name, type_namem, type_namemn, type_namen, TypeName};
 
@@ -170,7 +185,7 @@ mod tests {
         assert_eq!(type_name::<bool>(), "bool");
         assert_eq!(type_name::<char>(), "char");
 
-        assert_eq!(type_name::<HashMap<u32, String>>(), "HashMap<u32, String>");
+        assert_eq!(type_name::<Vec<(u32, String)>>(), "Vec<(u32, String)>");
     }
 
     #[test]
@@ -181,7 +196,6 @@ mod tests {
 
     #[test]
     fn type_name_slice() {
-        dbg!(crate::TypeName::from(std::any::type_name::<&[u32]>()));
         assert_eq!(type_name::<&[u32]>(), "&[u32]");
     }
 
@@ -205,9 +219,9 @@ mod tests {
 
     #[test]
     fn type_name_display() {
-        use std::sync::atomic::AtomicI8;
+        use core::sync::atomic::AtomicI8;
 
-        type T<'a> = Box<HashMap<Option<String>, &'a AtomicI8>>;
+        type T<'a> = Box<Vec<(Option<String>, &'a AtomicI8)>>;
 
         let tn: TypeName = TypeName::new::<T>();
 
@@ -218,9 +232,9 @@ mod tests {
 
     #[test]
     fn type_name_display_mn() {
-        use std::sync::atomic::AtomicI8;
+        use core::sync::atomic::AtomicI8;
 
-        type T<'a> = Box<HashMap<Option<String>, &'a AtomicI8>>;
+        type T<'a> = Box<Vec<(Option<String>, &'a AtomicI8)>>;
 
         let tn: TypeName = TypeName::new::<T>();
 
@@ -231,9 +245,9 @@ mod tests {
 
     #[test]
     fn type_name_usize_mn() {
-        assert_eq!(type_namem::<usize>(std::usize::MAX), "::usize");
+        assert_eq!(type_namem::<usize>(core::usize::MAX), "::usize");
         assert_eq!(
-            type_namemn::<usize>(std::usize::MAX, std::usize::MAX),
+            type_namemn::<usize>(core::usize::MAX, core::usize::MAX),
             "::usize"
         );
     }

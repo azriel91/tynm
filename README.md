@@ -1,19 +1,23 @@
+# 🪶 Tynm -- Type Name
+
 [![Crates.io](https://img.shields.io/crates/v/tynm.svg)](https://crates.io/crates/tynm)
 [![docs.rs](https://img.shields.io/docsrs/tynm)](https://docs.rs/tynm)
 [![CI](https://github.com/azriel91/tynm/workflows/CI/badge.svg)](https://github.com/azriel91/tynm/actions/workflows/ci.yml)
 [![Coverage Status](https://codecov.io/gh/azriel91/tynm/branch/main/graph/badge.svg)](https://codecov.io/gh/azriel91/tynm)
 
-# Tynm -- Type Name
-
 Returns type names with a specifiable number of module segments as a `String`.
 
-```rust
-#[rustfmt::skip]
-assert_eq!(
-    std::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>"
-);
+## Usage
 
-#[rustfmt::skip]
+Add the following to `Cargo.toml`
+
+```toml
+tynm = "0.1.8"
+```
+
+In code:
+
+```rust
 let tuples = vec![
     (tynm::type_name::<Option<String>>(),    "Option<String>"),
     (tynm::type_namem::<Option<String>>(1),  "core::..::Option<alloc::..::String>"),
@@ -22,12 +26,14 @@ let tuples = vec![
     (tynm::type_namemn::<rust_out::two::three::Struct>(1, 1), "rust_out::..::three::Struct"),
     // traits
     (tynm::type_name::<dyn core::fmt::Debug>(), "dyn Debug"),
+
+    // core / std
+    (core::any::type_name::<Option<String>>(), "core::option::Option<alloc::string::String>")
 ];
 
 tuples
     .iter()
     .for_each(|(left, right)| assert_eq!(left, right));
-
 ```
 
 ## Motivation

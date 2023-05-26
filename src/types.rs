@@ -1,4 +1,5 @@
-use std::{
+use alloc::{boxed::Box, string::String, vec::Vec};
+use core::{
     fmt,
     fmt::{Error, Write},
 };
@@ -52,9 +53,9 @@ pub enum TypeName<'s> {
 impl<'s> TypeName<'s> {
     /// Constructs a new TypeName with the name of `T`.
     ///
-    /// This is equivalent to calling `std::any::type_name::<T>().into()`
+    /// This is equivalent to calling `core::any::type_name::<T>().into()`
     pub fn new<T: ?Sized>() -> Self {
-        std::any::type_name::<T>().into()
+        core::any::type_name::<T>().into()
     }
 
     /// Returns the type name string without any module paths.
@@ -615,6 +616,8 @@ impl<'s> From<&'s str> for TypeName<'s> {
 
 #[cfg(test)]
 mod tests {
+    use alloc::{vec, vec::Vec};
+
     use pretty_assertions::assert_eq;
 
     use super::{TypeName, TypeNameStruct};
@@ -642,7 +645,7 @@ mod tests {
     fn parse_simple_struct() {
         let expected = type_name_simple!();
 
-        let actual = TypeName::from(std::any::type_name::<Simple>());
+        let actual = TypeName::from(core::any::type_name::<Simple>());
 
         assert_eq!(expected, actual);
     }
@@ -651,7 +654,7 @@ mod tests {
     fn parse_type_parameterized_struct() {
         let expected = type_name_type_param_single!();
 
-        let actual = TypeName::from(std::any::type_name::<TypeParamSingle<Simple>>());
+        let actual = TypeName::from(core::any::type_name::<TypeParamSingle<Simple>>());
 
         assert_eq!(expected, actual);
     }
@@ -664,7 +667,7 @@ mod tests {
             type_params: vec![type_name_type_param_single!()],
         });
 
-        let actual = TypeName::from(std::any::type_name::<
+        let actual = TypeName::from(core::any::type_name::<
             TypeParamSingle<TypeParamSingle<Simple>>,
         >());
 
@@ -679,7 +682,7 @@ mod tests {
             type_params: vec![type_name_simple!(), type_name_simple!()],
         });
 
-        let actual = TypeName::from(std::any::type_name::<TypeParamDouble<Simple, Simple>>());
+        let actual = TypeName::from(core::any::type_name::<TypeParamDouble<Simple, Simple>>());
 
         assert_eq!(expected, actual);
     }
@@ -695,7 +698,7 @@ mod tests {
             ],
         });
 
-        let actual = TypeName::from(std::any::type_name::<
+        let actual = TypeName::from(core::any::type_name::<
             TypeParamDouble<TypeParamSingle<Simple>, TypeParamSingle<Simple>>,
         >());
 
