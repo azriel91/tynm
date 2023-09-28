@@ -1,4 +1,4 @@
-// #![no_std]
+#![no_std]
 // #![deny(missing_docs, missing_debug_implementations)]
 
 //! Returns type names with a specifiable number of module segments as a `String`.
