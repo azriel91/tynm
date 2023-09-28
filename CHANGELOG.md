@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.9 (2023-09-28)
+
+* Add `tynm::type_name*_opts` methods, taking in `TypeParamsFmtOpts` to specify how type parameters are formatted. ([#15])
+
+[#15]: https://github.com/azriel91/tynm/pulls/15
+
+
 ## 0.1.8 (2023-05-26)
 
 * Support `#![no_std]`. ([#13], [#14])
