@@ -1,4 +1,4 @@
-#![no_std]
+// #![no_std]
 // #![deny(missing_docs, missing_debug_implementations)]
 
 //! Returns type names with a specifiable number of module segments as a `String`.
@@ -55,9 +55,13 @@ extern crate alloc;
 
 use alloc::string::String;
 
-pub use crate::types::{TypeName, TypeNameDisplay};
+pub use crate::{
+    type_params_fmt_opts::TypeParamsFmtOpts,
+    types::{TypeName, TypeNameDisplay},
+};
 
 mod parser;
+mod type_params_fmt_opts;
 mod types;
 
 /// Returns the simple type name.
@@ -76,6 +80,44 @@ where
     T: ?Sized,
 {
     type_namemn::<T>(0, 0)
+}
+
+/// Returns the simple type name.
+///
+/// # Parameters
+///
+/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+///
+/// # Type Parameters
+///
+/// * `T`: Type whose simple type name should be returned.
+///
+/// # Examples
+///
+/// ```rust
+/// # use tynm::TypeParamsFmtOpts;
+/// struct MyStruct<T>(T);
+///
+/// # fn main() {
+/// assert_eq!(
+///     tynm::type_name_opts::<MyStruct<String>>(TypeParamsFmtOpts::All),
+///     "MyStruct<String>",
+/// );
+/// assert_eq!(
+///     tynm::type_name_opts::<MyStruct<String>>(TypeParamsFmtOpts::Std),
+///     "MyStruct",
+/// );
+/// assert_eq!(
+///     tynm::type_name_opts::<Vec<MyStruct<String>>>(TypeParamsFmtOpts::Std),
+///     "Vec<MyStruct>",
+/// );
+/// # }
+/// ```
+pub fn type_name_opts<T>(type_params_fmt_opts: TypeParamsFmtOpts) -> String
+where
+    T: ?Sized,
+{
+    type_namemn_opts::<T>(0, 0, type_params_fmt_opts)
 }
 
 /// Returns the type name with at most `m` most significant module path segments.
@@ -103,6 +145,48 @@ where
     type_namemn::<T>(m, 0)
 }
 
+/// Returns the type name with at most `m` most significant module path segments.
+///
+/// # Parameters
+///
+/// * `m`: Number of most significant module path segments to include.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+///
+/// # Type Parameters
+///
+/// * `T`: Type whose simple type name should be returned.
+///
+/// # Examples
+///
+/// ```rust
+/// # use tynm::TypeParamsFmtOpts;
+/// pub mod a {
+///     pub mod b {
+///         pub mod c {
+///             pub struct MyStruct<T>(T);
+///         }
+///     }
+/// }
+///
+/// # fn main() {
+/// # use crate::a::b::c::MyStruct;
+/// assert_eq!(
+///     tynm::type_namem_opts::<MyStruct<String>>(1, TypeParamsFmtOpts::All),
+///     "rust_out::..::MyStruct<alloc::..::String>",
+/// );
+/// assert_eq!(
+///     tynm::type_namem_opts::<MyStruct<String>>(1, TypeParamsFmtOpts::Std),
+///     "rust_out::..::MyStruct",
+/// );
+/// # }
+/// ```
+pub fn type_namem_opts<T>(m: usize, type_params_fmt_opts: TypeParamsFmtOpts) -> String
+where
+    T: ?Sized,
+{
+    type_namemn_opts::<T>(m, 0, type_params_fmt_opts)
+}
+
 /// Returns the type name with at most `n` least significant module path segments.
 ///
 /// # Parameters
@@ -128,6 +212,44 @@ where
     type_namemn::<T>(0, n)
 }
 
+/// Returns the type name with at most `n` least significant module path segments.
+///
+/// # Parameters
+///
+/// * `n`: Number of least significant module path segments to include.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+///
+/// # Type Parameters
+///
+/// * `T`: Type whose simple type name should be returned.
+///
+/// # Examples
+///
+/// ```rust
+/// # use tynm::TypeParamsFmtOpts;
+/// pub mod a {
+///     pub mod b {
+///         pub mod c {
+///             pub struct MyStruct<T>(T);
+///         }
+///     }
+/// }
+///
+/// # fn main() {
+/// # use crate::a::b::c::MyStruct;
+/// assert_eq!(
+///     tynm::type_namen_opts::<MyStruct<String>>(1, TypeParamsFmtOpts::Std),
+///     "..::c::MyStruct",
+/// );
+/// # }
+/// ```
+pub fn type_namen_opts<T>(n: usize, type_params_fmt_opts: TypeParamsFmtOpts) -> String
+where
+    T: ?Sized,
+{
+    type_namemn_opts::<T>(0, n, type_params_fmt_opts)
+}
+
 /// Returns the type name with `m` most significant, and `n` least significant module path segments.
 ///
 /// # Parameters
@@ -151,70 +273,158 @@ pub fn type_namemn<T>(m: usize, n: usize) -> String
 where
     T: ?Sized,
 {
+    type_namemn_opts::<T>(m, n, TypeParamsFmtOpts::All)
+}
+
+/// Returns the type name with `m` most significant, and `n` least significant module path segments.
+///
+/// # Parameters
+///
+/// * `m`: Number of most significant module path segments to include.
+/// * `n`: Number of least significant module path segments to include.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+///
+/// # Type Parameters
+///
+/// * `T`: Type whose simple type name should be returned.
+///
+/// # Examples
+///
+/// ```rust
+/// # use tynm::TypeParamsFmtOpts;
+/// pub mod a {
+///     pub mod b {
+///         pub mod c {
+///             pub struct MyStruct<T>(T);
+///         }
+///     }
+/// }
+///
+/// # fn main() {
+/// # use crate::a::b::c::MyStruct;
+/// assert_eq!(
+///     tynm::type_namemn_opts::<MyStruct<String>>(1, 1, TypeParamsFmtOpts::Std),
+///     "rust_out::..::c::MyStruct",
+/// );
+/// # }
+/// ```
+pub fn type_namemn_opts<T>(m: usize, n: usize, type_params_fmt_opts: TypeParamsFmtOpts) -> String
+where
+    T: ?Sized,
+{
     let type_name_qualified = core::any::type_name::<T>();
 
     let type_name = TypeName::from(type_name_qualified);
-    type_name.as_str_mn(m, n)
+    type_name.as_str_mn_opts(m, n, type_params_fmt_opts)
 }
 
 #[cfg(test)]
 mod tests {
     use alloc::{boxed::Box, format, string::String, vec::Vec};
 
-    use super::{type_name, type_namem, type_namemn, type_namen, TypeName};
+    use super::{TypeName, TypeParamsFmtOpts};
+    use crate as tynm;
 
     #[test]
     fn type_name_primitives() {
-        assert_eq!(type_name::<usize>(), "usize");
-        assert_eq!(type_name::<u8>(), "u8");
-        assert_eq!(type_name::<u16>(), "u16");
-        assert_eq!(type_name::<u32>(), "u32");
-        assert_eq!(type_name::<u64>(), "u64");
-        assert_eq!(type_name::<u128>(), "u128");
+        assert_eq!(tynm::type_name::<usize>(), "usize");
+        assert_eq!(tynm::type_name::<u8>(), "u8");
+        assert_eq!(tynm::type_name::<u16>(), "u16");
+        assert_eq!(tynm::type_name::<u32>(), "u32");
+        assert_eq!(tynm::type_name::<u64>(), "u64");
+        assert_eq!(tynm::type_name::<u128>(), "u128");
 
-        assert_eq!(type_name::<isize>(), "isize");
-        assert_eq!(type_name::<i8>(), "i8");
-        assert_eq!(type_name::<i16>(), "i16");
-        assert_eq!(type_name::<i32>(), "i32");
-        assert_eq!(type_name::<i64>(), "i64");
-        assert_eq!(type_name::<i128>(), "i128");
+        assert_eq!(tynm::type_name::<isize>(), "isize");
+        assert_eq!(tynm::type_name::<i8>(), "i8");
+        assert_eq!(tynm::type_name::<i16>(), "i16");
+        assert_eq!(tynm::type_name::<i32>(), "i32");
+        assert_eq!(tynm::type_name::<i64>(), "i64");
+        assert_eq!(tynm::type_name::<i128>(), "i128");
 
-        assert_eq!(type_name::<f32>(), "f32");
-        assert_eq!(type_name::<f64>(), "f64");
+        assert_eq!(tynm::type_name::<f32>(), "f32");
+        assert_eq!(tynm::type_name::<f64>(), "f64");
 
-        assert_eq!(type_name::<bool>(), "bool");
-        assert_eq!(type_name::<char>(), "char");
+        assert_eq!(tynm::type_name::<bool>(), "bool");
+        assert_eq!(tynm::type_name::<char>(), "char");
 
-        assert_eq!(type_name::<Vec<(u32, String)>>(), "Vec<(u32, String)>");
+        assert_eq!(
+            tynm::type_name::<Vec<(u32, String)>>(),
+            "Vec<(u32, String)>"
+        );
     }
 
     #[test]
     fn type_name_array() {
-        assert_eq!(type_name::<[u32; 3]>(), "[u32; 3]");
-        assert_eq!(type_name::<[Option<String>; 3]>(), "[Option<String>; 3]");
+        assert_eq!(tynm::type_name::<[u32; 3]>(), "[u32; 3]");
+        assert_eq!(
+            tynm::type_name::<[Option<String>; 3]>(),
+            "[Option<String>; 3]"
+        );
+    }
+
+    #[test]
+    fn type_name_opts() {
+        struct MyStruct<T>(T);
+
+        assert_eq!(
+            tynm::type_name_opts::<MyStruct<String>>(TypeParamsFmtOpts::All),
+            "MyStruct<String>"
+        );
+        assert_eq!(
+            tynm::type_name_opts::<MyStruct<String>>(TypeParamsFmtOpts::Std),
+            "MyStruct",
+        );
+        assert_eq!(
+            tynm::type_name_opts::<Vec<MyStruct<String>>>(TypeParamsFmtOpts::Std),
+            "Vec<MyStruct>",
+        );
+    }
+
+    #[test]
+    fn type_namem_opts() {
+        struct MyStruct<T>(T);
+
+        assert_eq!(
+            tynm::type_namem_opts::<MyStruct<String>>(1, TypeParamsFmtOpts::All),
+            "tynm::..::MyStruct<alloc::..::String>",
+        );
+        assert_eq!(
+            tynm::type_namem_opts::<MyStruct<String>>(1, TypeParamsFmtOpts::Std),
+            "tynm::..::MyStruct",
+        );
+    }
+
+    #[test]
+    fn type_namemn_opts() {
+        struct MyStruct<T>(T);
+
+        assert_eq!(
+            tynm::type_namemn_opts::<MyStruct<String>>(1, 1, TypeParamsFmtOpts::Std),
+            "tynm::..::type_namemn_opts::MyStruct",
+        );
     }
 
     #[test]
     fn type_name_slice() {
-        assert_eq!(type_name::<&[u32]>(), "&[u32]");
+        assert_eq!(tynm::type_name::<&[u32]>(), "&[u32]");
     }
 
     #[test]
     fn type_name_unit_tuple() {
-        assert_eq!(type_name::<()>(), "()");
-        assert_eq!(type_name::<(Option<String>,)>(), "(Option<String>,)");
+        assert_eq!(tynm::type_name::<()>(), "()");
+        assert_eq!(tynm::type_name::<(Option<String>,)>(), "(Option<String>,)");
         assert_eq!(
-            type_name::<(Option<String>, u32)>(),
+            tynm::type_name::<(Option<String>, u32)>(),
             "(Option<String>, u32)"
         );
     }
 
     #[test]
     fn type_name_reference() {
-        assert_eq!(type_name::<&str>(), "&str");
+        assert_eq!(tynm::type_name::<&str>(), "&str");
 
-        assert_eq!(type_name::<&Option<String>>(), "&Option<String>");
-        assert_eq!(type_name::<Option<&String>>(), "Option<&String>");
+        assert_eq!(tynm::type_name::<&Option<String>>(), "&Option<String>");
+        assert_eq!(tynm::type_name::<Option<&String>>(), "Option<&String>");
     }
 
     #[test]
@@ -227,7 +437,7 @@ mod tests {
 
         let display = tn.as_display();
         let string = format!("{display}");
-        assert_eq!(type_name::<T>(), string);
+        assert_eq!(tynm::type_name::<T>(), string);
     }
 
     #[test]
@@ -240,29 +450,35 @@ mod tests {
 
         let display = tn.as_display_mn(1, 0);
         let string = format!("{display}");
-        assert_eq!(type_namemn::<T>(1, 0), string);
+        assert_eq!(tynm::type_namemn::<T>(1, 0), string);
     }
 
     #[test]
     fn type_name_usize_mn() {
-        assert_eq!(type_namem::<usize>(core::usize::MAX), "::usize");
+        assert_eq!(tynm::type_namem::<usize>(core::usize::MAX), "::usize");
         assert_eq!(
-            type_namemn::<usize>(core::usize::MAX, core::usize::MAX),
+            tynm::type_namemn::<usize>(core::usize::MAX, core::usize::MAX),
             "::usize"
         );
     }
 
     #[test]
     fn type_name_unsized() {
-        assert_eq!(type_name::<dyn core::fmt::Debug>(), "dyn Debug");
+        assert_eq!(tynm::type_name::<dyn core::fmt::Debug>(), "dyn Debug");
     }
 
     #[test]
     fn type_name_unsized_mn() {
-        assert_eq!(type_namem::<dyn core::fmt::Debug>(1), "dyn core::..::Debug");
-        assert_eq!(type_namen::<dyn core::fmt::Debug>(1), "dyn ..::fmt::Debug");
         assert_eq!(
-            type_namemn::<dyn core::fmt::Debug>(0, 1),
+            tynm::type_namem::<dyn core::fmt::Debug>(1),
+            "dyn core::..::Debug"
+        );
+        assert_eq!(
+            tynm::type_namen::<dyn core::fmt::Debug>(1),
+            "dyn ..::fmt::Debug"
+        );
+        assert_eq!(
+            tynm::type_namemn::<dyn core::fmt::Debug>(0, 1),
             "dyn ..::fmt::Debug"
         );
     }

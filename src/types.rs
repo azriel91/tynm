@@ -4,7 +4,7 @@ use core::{
     fmt::{Error, Write},
 };
 
-use crate::parser;
+use crate::{parser, TypeParamsFmtOpts};
 
 /// Helper struct for printing type names directly to `format!`.
 ///
@@ -24,13 +24,19 @@ use crate::parser;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TypeNameDisplay<'s> {
     inner: &'s TypeName<'s>,
-    parameters: (usize, usize),
+    segment_count_left: usize,
+    segment_count_right: usize,
+    type_params_fmt_opts: TypeParamsFmtOpts,
 }
 
 impl<'s> fmt::Display for TypeNameDisplay<'s> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.inner
-            .write_str(f, self.parameters.0, self.parameters.1)
+        self.inner.write_str_opts(
+            f,
+            self.segment_count_left,
+            self.segment_count_right,
+            self.type_params_fmt_opts,
+        )
     }
 }
 
@@ -60,11 +66,32 @@ impl<'s> TypeName<'s> {
 
     /// Returns the type name string without any module paths.
     ///
-    /// This is equivalent to calling `TypeName::as_str_mn(0, 0);`
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0, TypeParamsFmtOpts::All);`
     pub fn as_str(&self) -> String {
         self.as_str_mn(0, 0)
     }
 
+    /// Returns the type name string without any module paths.
+    ///
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0, type_params_fmt_opts);`
+    pub fn as_str_opts(&self, type_params_fmt_opts: TypeParamsFmtOpts) -> String {
+        self.as_str_mn_opts(0, 0, type_params_fmt_opts)
+    }
+
+    /// Returns the type name string with the given number of module segments.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// printed once.
+    ///
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(m, n, TypeParamsFmtOpts::All);`
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    pub fn as_str_mn(&self, m: usize, n: usize) -> String {
+        self.as_str_mn_opts(m, n, TypeParamsFmtOpts::All)
+    }
     /// Returns the type name string with the given number of module segments.
     ///
     /// If the left and right module segments overlap, the overlapping segments will only be printed
@@ -74,10 +101,16 @@ impl<'s> TypeName<'s> {
     ///
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn as_str_mn(&self, m: usize, n: usize) -> String {
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn as_str_mn_opts(
+        &self,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> String {
         let mut buffer = String::with_capacity(128); // TODO: smarter capacity allocation.
 
-        self.write_str(&mut buffer, m, n)
+        self.write_str_opts(&mut buffer, m, n, type_params_fmt_opts)
             .unwrap_or_else(|e| panic!("Failed to write `TypeName` as String. Error: `{}`.", e));
 
         buffer
@@ -99,9 +132,30 @@ impl<'s> TypeName<'s> {
     /// println!("{}", tn.as_display());
     /// ```
     pub fn as_display(&self) -> TypeNameDisplay {
+        self.as_display_opts(TypeParamsFmtOpts::All)
+    }
+
+    /// Returns an object that implements `fmt::Display` for printing the type
+    /// name without any module paths directly with `format!` and `{}`.
+    ///
+    /// When using this type name in a `format!` or similar it is more efficient
+    /// to use this display instead of first creating a string.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use tynm::{TypeName, TypeParamsFmtOpts};
+    ///
+    /// let tn = TypeName::new::<String>();
+    ///
+    /// println!("{}", tn.as_display_opts(TypeParamsFmtOpts::Std));
+    /// ```
+    pub fn as_display_opts(&self, type_params_fmt_opts: TypeParamsFmtOpts) -> TypeNameDisplay {
         TypeNameDisplay {
             inner: self,
-            parameters: (0, 0),
+            segment_count_left: 0,
+            segment_count_right: 0,
+            type_params_fmt_opts,
         }
     }
 
@@ -130,9 +184,45 @@ impl<'s> TypeName<'s> {
     /// println!("{}", tn.as_display_mn(1, 2));
     /// ```
     pub fn as_display_mn(&self, m: usize, n: usize) -> TypeNameDisplay {
+        self.as_display_mn_opts(m, n, TypeParamsFmtOpts::All)
+    }
+
+    /// Returns an object that implements `fmt::Display` for printing the type
+    /// name without any module paths directly with `format!` and `{}`.
+    ///
+    /// When using this type name in a `format!` or similar it is more efficient
+    /// to use this display instead of first creating a string.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use tynm::{TypeName, TypeParamsFmtOpts};
+    ///
+    /// let tn = TypeName::new::<String>();
+    ///
+    /// println!("{}", tn.as_display_mn_opts(1, 2, TypeParamsFmtOpts::Std));
+    /// ```
+    pub fn as_display_mn_opts(
+        &self,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> TypeNameDisplay {
         TypeNameDisplay {
             inner: self,
-            parameters: (m, n),
+            segment_count_left: m,
+            segment_count_right: n,
+            type_params_fmt_opts,
         }
     }
 
@@ -150,16 +240,54 @@ impl<'s> TypeName<'s> {
     where
         W: Write,
     {
+        self.write_str_opts(buffer, m, n, TypeParamsFmtOpts::All)
+    }
+
+    /// Writes the type name string to the given buffer.
+    ///
+    /// If the left and right module segments overlap, the overlapping segments will only be printed
+    /// once.
+    ///
+    /// # Parameters
+    ///
+    /// * `buffer`: Buffer to write to.
+    /// * `m`: Number of module segments to include, beginning from the left (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str_opts<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
+    where
+        W: Write,
+    {
         match self {
             Self::None => Ok(()),
-            Self::Array(type_name_array) => type_name_array.write_str(buffer, m, n),
+            Self::Array(type_name_array) => {
+                type_name_array.write_str(buffer, m, n, type_params_fmt_opts)
+            }
             Self::Never => buffer.write_str("!"),
-            Self::Pointer(type_name_pointer) => type_name_pointer.write_str(buffer, m, n),
-            Self::Reference(type_name_reference) => type_name_reference.write_str(buffer, m, n),
-            Self::Slice(type_name_slice) => type_name_slice.write_str(buffer, m, n),
-            Self::Struct(type_name_struct) => type_name_struct.write_str(buffer, m, n),
-            Self::Tuple(type_name_tuple) => type_name_tuple.write_str(buffer, m, n),
-            Self::Trait(type_name_trait) => type_name_trait.write_str(buffer, m, n),
+            Self::Pointer(type_name_pointer) => {
+                type_name_pointer.write_str(buffer, m, n, type_params_fmt_opts)
+            }
+            Self::Reference(type_name_reference) => {
+                type_name_reference.write_str(buffer, m, n, type_params_fmt_opts)
+            }
+            Self::Slice(type_name_slice) => {
+                type_name_slice.write_str(buffer, m, n, type_params_fmt_opts)
+            }
+            Self::Struct(type_name_struct) => {
+                type_name_struct.write_str(buffer, m, n, type_params_fmt_opts)
+            }
+            Self::Tuple(type_name_tuple) => {
+                type_name_tuple.write_str(buffer, m, n, type_params_fmt_opts)
+            }
+            Self::Trait(type_name_trait) => {
+                type_name_trait.write_str(buffer, m, n, type_params_fmt_opts)
+            }
             Self::Unit => buffer.write_str("()"),
         }
     }
@@ -195,12 +323,20 @@ impl<'s> TypeNameArray<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
         buffer.write_str("[")?;
-        self.type_param.write_str(buffer, m, n)?;
+        self.type_param
+            .write_str_opts(buffer, m, n, type_params_fmt_opts)?;
         buffer.write_str("; ")?;
         buffer.write_str(self.len)?;
         buffer.write_str("]")
@@ -237,14 +373,22 @@ impl<'s> TypeNamePointer<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
         buffer.write_str("* ")?;
         buffer.write_str(self.const_or_mut)?;
         buffer.write_str(" ")?;
-        self.type_param.write_str(buffer, m, n)
+        self.type_param
+            .write_str_opts(buffer, m, n, type_params_fmt_opts)
     }
 }
 
@@ -278,7 +422,14 @@ impl<'s> TypeNameReference<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
@@ -286,7 +437,8 @@ impl<'s> TypeNameReference<'s> {
         if self.mutable {
             buffer.write_str("mut ")?;
         }
-        self.type_param.write_str(buffer, m, n)
+        self.type_param
+            .write_str_opts(buffer, m, n, type_params_fmt_opts)
     }
 }
 
@@ -313,13 +465,21 @@ impl<'s> TypeNameSlice<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
         // Don't need to prepend with `"&"` because slices are always passed in as references.
         buffer.write_str("[")?;
-        self.type_param.write_str(buffer, m, n)?;
+        self.type_param
+            .write_str_opts(buffer, m, n, type_params_fmt_opts)?;
         buffer.write_str("]")
     }
 }
@@ -361,13 +521,35 @@ impl<'s> TypeNameStruct<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
-        self.write_module_path(buffer, m, n)
-            .and_then(|_| self.write_simple_name(buffer))
-            .and_then(|_| self.write_type_params(buffer, m, n))
+        let result = self
+            .write_module_path(buffer, m, n)
+            .and_then(|_| self.write_simple_name(buffer));
+
+        match type_params_fmt_opts {
+            TypeParamsFmtOpts::All => {
+                result.and_then(|_| self.write_type_params(buffer, m, n, type_params_fmt_opts))
+            }
+            TypeParamsFmtOpts::Std
+                if matches!(
+                    self.module_path.first().copied(),
+                    Some("std" | "core" | "alloc")
+                ) =>
+            {
+                result.and_then(|_| self.write_type_params(buffer, m, n, type_params_fmt_opts))
+            }
+            _ => result,
+        }
     }
 
     /// Writes the module path to the given buffer.
@@ -439,7 +621,13 @@ impl<'s> TypeNameStruct<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_type_params<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    pub fn write_type_params<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
@@ -447,11 +635,11 @@ impl<'s> TypeNameStruct<'s> {
             buffer.write_str("<")?;
 
             if let Some((first, rest)) = self.type_params.split_first() {
-                first.write_str(buffer, m, n)?;
+                first.write_str_opts(buffer, m, n, type_params_fmt_opts)?;
                 rest.iter().try_for_each(|type_param| {
                     buffer
                         .write_str(", ")
-                        .and_then(|_| type_param.write_str(buffer, m, n))
+                        .and_then(|_| type_param.write_str_opts(buffer, m, n, type_params_fmt_opts))
                 })?;
             }
 
@@ -485,7 +673,14 @@ impl<'s> TypeNameTuple<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
@@ -493,15 +688,15 @@ impl<'s> TypeNameTuple<'s> {
             buffer.write_str("(")?;
 
             if let Some((first, rest)) = self.type_params.split_first() {
-                first.write_str(buffer, m, n)?;
+                first.write_str_opts(buffer, m, n, type_params_fmt_opts)?;
 
                 if self.type_params.len() == 1 {
                     buffer.write_str(",")?; // Always write `,` after first type.
                 } else {
                     rest.iter().try_for_each(|type_param| {
-                        buffer
-                            .write_str(", ")
-                            .and_then(|_| type_param.write_str(buffer, m, n))
+                        buffer.write_str(", ").and_then(|_| {
+                            type_param.write_str_opts(buffer, m, n, type_params_fmt_opts)
+                        })
                     })?;
                 }
             }
@@ -546,12 +741,19 @@ impl<'s> TypeNameTrait<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    pub fn write_str<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
         buffer.write_str("dyn ")?;
-        self.inner.write_str(buffer, m, n)
+        self.inner.write_str(buffer, m, n, type_params_fmt_opts)
     }
 
     /// Writes the module path to the given buffer.
@@ -593,11 +795,18 @@ impl<'s> TypeNameTrait<'s> {
     /// * `buffer`: Buffer to write to.
     /// * `m`: Number of module segments to include, beginning from the left (most significant).
     /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    pub fn write_type_params<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
+    pub fn write_type_params<W>(
+        &self,
+        buffer: &mut W,
+        m: usize,
+        n: usize,
+        type_params_fmt_opts: TypeParamsFmtOpts,
+    ) -> Result<(), Error>
     where
         W: Write,
     {
-        self.inner.write_type_params(buffer, m, n)
+        self.inner
+            .write_type_params(buffer, m, n, type_params_fmt_opts)
     }
 }
 
