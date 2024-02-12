@@ -60,9 +60,15 @@ pub use crate::{
     types::{TypeName, TypeNameDisplay},
 };
 
+#[cfg(feature = "info")]
+pub use crate::type_name_info::TypeNameInfo;
+
 mod parser;
 mod type_params_fmt_opts;
 mod types;
+
+#[cfg(feature = "info")]
+mod type_name_info;
 
 /// Returns the simple type name.
 ///
