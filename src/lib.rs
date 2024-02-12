@@ -8,7 +8,7 @@
 //! Add the following to `Cargo.toml`
 //!
 //! ```toml
-//! tynm = "0.1.8"
+//! tynm = "0.1.10"
 //! ```
 //!
 //! In code:

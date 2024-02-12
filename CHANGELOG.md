@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## 0.1.10 (2024-02-12)
 
 * Add `TypeNameInfo` gated behind `"info"` and `"serde"` features. ([#16])
 
