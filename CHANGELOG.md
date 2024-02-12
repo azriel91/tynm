@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.10 (2024-02-12)
+
+* Add `TypeNameInfo` gated behind `"info"` and `"serde"` features. ([#16])
+
+[#16]: https://github.com/azriel91/tynm/pulls/16
+
+
 ## 0.1.9 (2023-09-28)
 
 * Add `tynm::type_name*_opts` methods, taking in `TypeParamsFmtOpts` to specify how type parameters are formatted. ([#15])

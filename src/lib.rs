@@ -8,7 +8,7 @@
 //! Add the following to `Cargo.toml`
 //!
 //! ```toml
-//! tynm = "0.1.8"
+//! tynm = "0.1.10"
 //! ```
 //!
 //! In code:
@@ -60,9 +60,15 @@ pub use crate::{
     types::{TypeName, TypeNameDisplay},
 };
 
+#[cfg(feature = "info")]
+pub use crate::type_name_info::TypeNameInfo;
+
 mod parser;
 mod type_params_fmt_opts;
 mod types;
+
+#[cfg(feature = "info")]
+mod type_name_info;
 
 /// Returns the simple type name.
 ///
