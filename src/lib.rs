@@ -1,7 +1,8 @@
 #![no_std]
 // #![deny(missing_docs, missing_debug_implementations)]
 
-//! Returns type names with a specifiable number of module segments as a `String`.
+//! Returns type names with a specifiable number of module segments as a
+//! `String`.
 //!
 //! # Usage
 //!
@@ -42,12 +43,12 @@
 //!
 //! # Motivation
 //!
-//! The [`core::any::type_name`] function stabilized in Rust 1.38 returns the fully qualified type
-//! name with all module segments. This can be difficult to read in error messages, especially for
-//! type-parameterized types.
+//! The [`core::any::type_name`] function stabilized in Rust 1.38 returns the
+//! fully qualified type name with all module segments. This can be difficult to
+//! read in error messages, especially for type-parameterized types.
 //!
-//! Often, the simple type name is more readable, and enough to distinguish the type referenced in
-//! an error.
+//! Often, the simple type name is more readable, and enough to distinguish the
+//! type referenced in an error.
 //!
 //! [`core::any::type_name`]: https://doc.rust-lang.org/std/any/fn.type_name.html
 
@@ -92,7 +93,8 @@ where
 ///
 /// # Parameters
 ///
-/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type
+///   documentation for details.
 ///
 /// # Type Parameters
 ///
@@ -126,7 +128,8 @@ where
     type_namemn_opts::<T>(0, 0, type_params_fmt_opts)
 }
 
-/// Returns the type name with at most `m` most significant module path segments.
+/// Returns the type name with at most `m` most significant module path
+/// segments.
 ///
 /// # Parameters
 ///
@@ -151,12 +154,14 @@ where
     type_namemn::<T>(m, 0)
 }
 
-/// Returns the type name with at most `m` most significant module path segments.
+/// Returns the type name with at most `m` most significant module path
+/// segments.
 ///
 /// # Parameters
 ///
 /// * `m`: Number of most significant module path segments to include.
-/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type
+///   documentation for details.
 ///
 /// # Type Parameters
 ///
@@ -193,7 +198,8 @@ where
     type_namemn_opts::<T>(m, 0, type_params_fmt_opts)
 }
 
-/// Returns the type name with at most `n` least significant module path segments.
+/// Returns the type name with at most `n` least significant module path
+/// segments.
 ///
 /// # Parameters
 ///
@@ -218,12 +224,14 @@ where
     type_namemn::<T>(0, n)
 }
 
-/// Returns the type name with at most `n` least significant module path segments.
+/// Returns the type name with at most `n` least significant module path
+/// segments.
 ///
 /// # Parameters
 ///
 /// * `n`: Number of least significant module path segments to include.
-/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type
+///   documentation for details.
 ///
 /// # Type Parameters
 ///
@@ -256,7 +264,8 @@ where
     type_namemn_opts::<T>(0, n, type_params_fmt_opts)
 }
 
-/// Returns the type name with `m` most significant, and `n` least significant module path segments.
+/// Returns the type name with `m` most significant, and `n` least significant
+/// module path segments.
 ///
 /// # Parameters
 ///
@@ -282,13 +291,15 @@ where
     type_namemn_opts::<T>(m, n, TypeParamsFmtOpts::All)
 }
 
-/// Returns the type name with `m` most significant, and `n` least significant module path segments.
+/// Returns the type name with `m` most significant, and `n` least significant
+/// module path segments.
 ///
 /// # Parameters
 ///
 /// * `m`: Number of most significant module path segments to include.
 /// * `n`: Number of least significant module path segments to include.
-/// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+/// * `type_params_fmt_opts`: How to format type parameters, see the type
+///   documentation for details.
 ///
 /// # Type Parameters
 ///
@@ -461,9 +472,9 @@ mod tests {
 
     #[test]
     fn type_name_usize_mn() {
-        assert_eq!(tynm::type_namem::<usize>(core::usize::MAX), "::usize");
+        assert_eq!(tynm::type_namem::<usize>(usize::MAX), "::usize");
         assert_eq!(
-            tynm::type_namemn::<usize>(core::usize::MAX, core::usize::MAX),
+            tynm::type_namemn::<usize>(usize::MAX, usize::MAX),
             "::usize"
         );
     }
