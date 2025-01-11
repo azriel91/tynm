@@ -29,7 +29,7 @@ pub struct TypeNameDisplay<'s> {
     type_params_fmt_opts: TypeParamsFmtOpts,
 }
 
-impl<'s> fmt::Display for TypeNameDisplay<'s> {
+impl fmt::Display for TypeNameDisplay<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.inner.write_str_opts(
             f,
@@ -56,7 +56,7 @@ pub enum TypeName<'s> {
     Unit,
 }
 
-impl<'s> TypeName<'s> {
+impl TypeName<'_> {
     /// Constructs a new TypeName with the name of `T`.
     ///
     /// This is equivalent to calling `core::any::type_name::<T>().into()`

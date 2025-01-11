@@ -472,9 +472,9 @@ mod tests {
 
     #[test]
     fn type_name_usize_mn() {
-        assert_eq!(tynm::type_namem::<usize>(core::usize::MAX), "::usize");
+        assert_eq!(tynm::type_namem::<usize>(usize::MAX), "::usize");
         assert_eq!(
-            tynm::type_namemn::<usize>(core::usize::MAX, core::usize::MAX),
+            tynm::type_namemn::<usize>(usize::MAX, usize::MAX),
             "::usize"
         );
     }
