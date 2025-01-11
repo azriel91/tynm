@@ -66,42 +66,51 @@ impl<'s> TypeName<'s> {
 
     /// Returns the type name string without any module paths.
     ///
-    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0, TypeParamsFmtOpts::All);`
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0,
+    /// TypeParamsFmtOpts::All);`
     pub fn as_str(&self) -> String {
         self.as_str_mn(0, 0)
     }
 
     /// Returns the type name string without any module paths.
     ///
-    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0, type_params_fmt_opts);`
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(0, 0,
+    /// type_params_fmt_opts);`
     pub fn as_str_opts(&self, type_params_fmt_opts: TypeParamsFmtOpts) -> String {
         self.as_str_mn_opts(0, 0, type_params_fmt_opts)
     }
 
     /// Returns the type name string with the given number of module segments.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// printed once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed printed once.
     ///
-    /// This is equivalent to calling `TypeName::as_str_mn_opts(m, n, TypeParamsFmtOpts::All);`
+    /// This is equivalent to calling `TypeName::as_str_mn_opts(m, n,
+    /// TypeParamsFmtOpts::All);`
     ///
     /// # Parameters
     ///
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn as_str_mn(&self, m: usize, n: usize) -> String {
         self.as_str_mn_opts(m, n, TypeParamsFmtOpts::All)
     }
+
     /// Returns the type name string with the given number of module segments.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// printed once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed printed once.
     ///
     /// # Parameters
     ///
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn as_str_mn_opts(
         &self,
         m: usize,
@@ -165,14 +174,16 @@ impl<'s> TypeName<'s> {
     /// When using this type name in a `format!` or similar it is more efficient
     /// to use this display instead of first creating a string.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     ///
     /// # Example
     ///
@@ -193,15 +204,18 @@ impl<'s> TypeName<'s> {
     /// When using this type name in a `format!` or similar it is more efficient
     /// to use this display instead of first creating a string.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     ///
     /// # Example
     ///
@@ -228,14 +242,16 @@ impl<'s> TypeName<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn write_str<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
     where
         W: Write,
@@ -245,15 +261,18 @@ impl<'s> TypeName<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str_opts<W>(
         &self,
         buffer: &mut W,
@@ -315,15 +334,18 @@ impl<'s> TypeNameArray<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -365,15 +387,18 @@ impl<'s> TypeNamePointer<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -414,15 +439,18 @@ impl<'s> TypeNameReference<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -457,15 +485,18 @@ impl<'s> TypeNameSlice<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -476,7 +507,8 @@ impl<'s> TypeNameSlice<'s> {
     where
         W: Write,
     {
-        // Don't need to prepend with `"&"` because slices are always passed in as references.
+        // Don't need to prepend with `"&"` because slices are always passed in as
+        // references.
         buffer.write_str("[")?;
         self.type_param
             .write_str_opts(buffer, m, n, type_params_fmt_opts)?;
@@ -513,15 +545,18 @@ impl<'s> TypeNameStruct<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -554,14 +589,16 @@ impl<'s> TypeNameStruct<'s> {
 
     /// Writes the module path to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn write_module_path<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
     where
         W: Write,
@@ -613,14 +650,16 @@ impl<'s> TypeNameStruct<'s> {
 
     /// Writes type parameters to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn write_type_params<W>(
         &self,
         buffer: &mut W,
@@ -665,15 +704,18 @@ impl<'s> TypeNameTuple<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -691,7 +733,8 @@ impl<'s> TypeNameTuple<'s> {
                 first.write_str_opts(buffer, m, n, type_params_fmt_opts)?;
 
                 if self.type_params.len() == 1 {
-                    buffer.write_str(",")?; // Always write `,` after first type.
+                    buffer.write_str(",")?; // Always write `,` after first
+                                            // type.
                 } else {
                     rest.iter().try_for_each(|type_param| {
                         buffer.write_str(", ").and_then(|_| {
@@ -733,15 +776,18 @@ impl<'s> TypeNameTrait<'s> {
 
     /// Writes the type name string to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
-    /// * `type_params_fmt_opts`: How to format type parameters, see the type documentation for details.
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
+    /// * `type_params_fmt_opts`: How to format type parameters, see the type
+    ///   documentation for details.
     pub fn write_str<W>(
         &self,
         buffer: &mut W,
@@ -758,14 +804,16 @@ impl<'s> TypeNameTrait<'s> {
 
     /// Writes the module path to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn write_module_path<W>(&self, buffer: &mut W, m: usize, n: usize) -> Result<(), Error>
     where
         W: Write,
@@ -787,14 +835,16 @@ impl<'s> TypeNameTrait<'s> {
 
     /// Writes type parameters to the given buffer.
     ///
-    /// If the left and right module segments overlap, the overlapping segments will only be printed
-    /// once.
+    /// If the left and right module segments overlap, the overlapping segments
+    /// will only be printed once.
     ///
     /// # Parameters
     ///
     /// * `buffer`: Buffer to write to.
-    /// * `m`: Number of module segments to include, beginning from the left (most significant).
-    /// * `n`: Number of module segments to include, beginning from the right (least significant).
+    /// * `m`: Number of module segments to include, beginning from the left
+    ///   (most significant).
+    /// * `n`: Number of module segments to include, beginning from the right
+    ///   (least significant).
     pub fn write_type_params<W>(
         &self,
         buffer: &mut W,

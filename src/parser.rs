@@ -208,11 +208,12 @@ pub fn struct_type(input: &str) -> IResult<&str, TypeNameStruct> {
 }
 
 pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
-    // Check for primitive types first, otherwise we cannot distinguish the `std::u32` module from
-    // `u32` (type).
+    // Check for primitive types first, otherwise we cannot distinguish the
+    // `std::u32` module from `u32` (type).
     //
-    // We shouldn't have to worry about `use crate::u32; u32::SomeType` as the type name input
-    // should be the fully qualified crate name as determined by Rust.
+    // We shouldn't have to worry about `use crate::u32; u32::SomeType` as the type
+    // name input should be the fully qualified crate name as determined by
+    // Rust.
     if let Some(result) = named_primitive(input) {
         result
     } else {
@@ -234,12 +235,12 @@ pub fn trait_type(input: &str) -> IResult<&str, TypeName> {
 
 /// Parses a type name.
 pub fn type_name(input: &str) -> IResult<&str, TypeName> {
-    // Primitive types begin with lowercase letters, but we have to detect them at this level, as
-    // lower parsers (`module_name`, `type_simple_name`) cannot tell if `"std::"` precedes the input
-    // it is given.
+    // Primitive types begin with lowercase letters, but we have to detect them at
+    // this level, as lower parsers (`module_name`, `type_simple_name`) cannot
+    // tell if `"std::"` precedes the input it is given.
     //
-    // In addition, types may begin with symbols, and we should detect them here and branch to the
-    // relevant parsing functions.
+    // In addition, types may begin with symbols, and we should detect them here and
+    // branch to the relevant parsing functions.
     let mut chars = input.chars();
     if let Some(first_char) = chars.next() {
         match first_char {
@@ -255,8 +256,9 @@ pub fn type_name(input: &str) -> IResult<&str, TypeName> {
                     if let Some(remainder) = split.next() {
                         trait_type(remainder)
                     } else {
-                        // We only have "dyn" as a token. User may have specified r#dyn as a struct name or function
-                        // name, but this is unusual. For now, we treat it as a struct.
+                        // We only have "dyn" as a token. User may have specified r#dyn as a struct
+                        // name or function name, but this is unusual. For
+                        // now, we treat it as a struct.
                         Ok((
                             "",
                             TypeName::Struct(TypeNameStruct {

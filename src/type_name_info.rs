@@ -6,7 +6,8 @@ use alloc::string::String;
 pub struct TypeNameInfo {
     /// The short type name, e.g. `"Option<String>"`.
     pub short_name: String,
-    /// The full type name, e.g. `"core::option::Option<alloc::string::String>"`.
+    /// The full type name, e.g.
+    /// `"core::option::Option<alloc::string::String>"`.
     pub full_name: String,
 }
 
