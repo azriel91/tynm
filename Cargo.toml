@@ -1,8 +1,8 @@
 [package]
 name = "tynm"
-version = "0.1.10"
+version = "0.2.0"
 authors = ["Azriel Hoh <azriel91@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "Returns type names in shorter form."
 repository = "https://github.com/azriel91/tynm"
 documentation = "https://docs.rs/tynm/"
@@ -11,8 +11,8 @@ keywords = ["typename", "type", "name"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-nom = { version = "7.1.3", default-features = false, features = ["alloc"] }
-serde = { version = "1.0.217", optional = true, features = ["derive"] }
+nom = { version = "8.0.0", default-features = false, features = ["alloc"] }
+serde = { version = "1.0.219", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"

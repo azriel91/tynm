@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: bp3d-actions/audit-check@9c23bd47e5e7b15b824739e0862cb878a52cc211
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: taiki-e/install-action@nextest
@@ -39,7 +39,7 @@ jobs:
       - name: Prepare symlink configuration
         run: git config --global core.symlinks true
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: taiki-e/install-action@nextest
@@ -60,18 +60,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: cargo-release Cache
-        id: cargo_release_cache
-        uses: actions/cache@v3
+      - name: cargo-release cache restore
+        id: cargo_release_cache_restore
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cargo/bin/cargo-release
           key: ${{ runner.os }}-cargo-release
 
       - run: cargo install cargo-release
-        if: steps.cargo_release_cache.outputs.cache-hit != 'true'
+        if: steps.cargo_release_cache_restore.outputs.cache-hit != 'true'
+
+      - name: cargo-release cache save
+        id: cargo_release_cache_save
+        uses: actions/cache/save@v4
+        if: always() && steps.cargo_release_cache_restore.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cargo/bin/cargo-release
+          key: ${{ runner.os }}-cargo-release
 
       - name: cargo login
         run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}

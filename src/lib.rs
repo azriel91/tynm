@@ -9,7 +9,7 @@
 //! Add the following to `Cargo.toml`
 //!
 //! ```toml
-//! tynm = "0.1.10"
+//! tynm = "0.2.0"
 //! ```
 //!
 //! In code:
