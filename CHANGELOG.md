@@ -1,5 +1,12 @@
 # Changelog
 
+## unreleased
+
+* Update `nom` to `8.0.0`. ([#18])
+
+[#18]: https://github.com/azriel91/tynm/pulls/18
+
+
 ## 0.1.10 (2024-02-12)
 
 * Add `TypeNameInfo` gated behind `"info"` and `"serde"` features. ([#16])
