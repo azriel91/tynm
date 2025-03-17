@@ -1,7 +1,8 @@
 # Changelog
 
-## unreleased
+## 0.2.0 (2025-03-17)
 
+* Update crate rust edition to 2024. ([#18])
 * Update `nom` to `8.0.0`. ([#18])
 
 [#18]: https://github.com/azriel91/tynm/pulls/18

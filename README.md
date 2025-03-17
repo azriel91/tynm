@@ -12,7 +12,7 @@ Returns type names with a specifiable number of module segments as a `String`.
 Add the following to `Cargo.toml`
 
 ```toml
-tynm = "0.1.10"
+tynm = "0.2.0"
 ```
 
 In code:

@@ -1,6 +1,6 @@
 [package]
 name = "tynm"
-version = "0.1.10"
+version = "0.2.0"
 authors = ["Azriel Hoh <azriel91@gmail.com>"]
 edition = "2024"
 description = "Returns type names in shorter form."
