@@ -2,7 +2,7 @@
 name = "tynm"
 version = "0.1.10"
 authors = ["Azriel Hoh <azriel91@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "Returns type names in shorter form."
 repository = "https://github.com/azriel91/tynm"
 documentation = "https://docs.rs/tynm/"
