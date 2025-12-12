@@ -140,7 +140,7 @@ impl TypeName<'_> {
     ///
     /// println!("{}", tn.as_display());
     /// ```
-    pub fn as_display(&self) -> TypeNameDisplay {
+    pub fn as_display(&self) -> TypeNameDisplay<'_> {
         self.as_display_opts(TypeParamsFmtOpts::All)
     }
 
@@ -159,7 +159,7 @@ impl TypeName<'_> {
     ///
     /// println!("{}", tn.as_display_opts(TypeParamsFmtOpts::Std));
     /// ```
-    pub fn as_display_opts(&self, type_params_fmt_opts: TypeParamsFmtOpts) -> TypeNameDisplay {
+    pub fn as_display_opts(&self, type_params_fmt_opts: TypeParamsFmtOpts) -> TypeNameDisplay<'_> {
         TypeNameDisplay {
             inner: self,
             segment_count_left: 0,
@@ -194,7 +194,7 @@ impl TypeName<'_> {
     ///
     /// println!("{}", tn.as_display_mn(1, 2));
     /// ```
-    pub fn as_display_mn(&self, m: usize, n: usize) -> TypeNameDisplay {
+    pub fn as_display_mn(&self, m: usize, n: usize) -> TypeNameDisplay<'_> {
         self.as_display_mn_opts(m, n, TypeParamsFmtOpts::All)
     }
 
@@ -231,7 +231,7 @@ impl TypeName<'_> {
         m: usize,
         n: usize,
         type_params_fmt_opts: TypeParamsFmtOpts,
-    ) -> TypeNameDisplay {
+    ) -> TypeNameDisplay<'_> {
         TypeNameDisplay {
             inner: self,
             segment_count_left: m,

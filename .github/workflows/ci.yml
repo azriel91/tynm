@@ -4,7 +4,7 @@ on:
       - main
   pull_request:
     branches:
-      - '**'
+      - "**"
 
 name: CI
 
@@ -14,8 +14,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: bp3d-actions/audit-check@9c23bd47e5e7b15b824739e0862cb878a52cc211
+      - uses: actions/checkout@v6
+      - name: "Generate Cargo.lock"
+        run: cargo generate-lockfile
+
+      - name: cargo-audit cache restore
+        id: cargo-audit_cache_restore
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: ${{ runner.os }}-cargo-audit
+
+      - run: cargo install cargo-audit
+        if: steps.cargo-audit_cache_restore.outputs.cache-hit != 'true'
+
+      - name: cargo-audit cache save
+        id: cargo-audit_cache_save
+        uses: actions/cache/save@v5
+        if: always() && steps.cargo-audit_cache_restore.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: ${{ runner.os }}-cargo-audit
+
+      - uses: rustsec/audit-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -24,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
@@ -40,7 +61,7 @@ jobs:
       RUSTDOCFLAGS: "-Dwarnings"
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Check spelling
@@ -53,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
@@ -66,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
@@ -75,7 +96,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-llvm-cov
       - uses: taiki-e/install-action@nextest
 
-      - name: 'Collect coverage'
+      - name: "Collect coverage"
         run: ./coverage.sh
 
       - name: Upload to codecov.io
@@ -88,14 +109,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: taiki-e/install-action@nextest
-      - name: 'Build and test'
+      - name: "Build and test"
         run: cargo nextest run --workspace --all-features
 
-      - name: 'Doc tests'
+      - name: "Doc tests"
         run: cargo test --doc
 
   build_and_test_windows:
@@ -106,12 +127,12 @@ jobs:
       - name: Prepare symlink configuration
         run: git config --global core.symlinks true
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: taiki-e/install-action@nextest
-      - name: 'Build and test'
+      - name: "Build and test"
         run: cargo nextest run --workspace --all-features
 
-      - name: 'Doc tests'
+      - name: "Doc tests"
         run: cargo test --doc

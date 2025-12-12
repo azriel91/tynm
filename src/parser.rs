@@ -90,7 +90,7 @@ pub fn type_simple_name(input: &str) -> IResult<&str, &str> {
     }
 }
 
-pub fn type_parameters(input: &str) -> IResult<&str, Vec<TypeName>> {
+pub fn type_parameters(input: &str) -> IResult<&str, Vec<TypeName<'_>>> {
     opt(delimited(
         char('<'),
         separated_list0(tag(", "), type_name),
@@ -113,7 +113,7 @@ pub fn array_length(input: &str) -> IResult<&str, Option<&str>> {
         })
 }
 
-pub fn array_or_slice_internal(input: &str) -> IResult<&str, TypeName> {
+pub fn array_or_slice_internal(input: &str) -> IResult<&str, TypeName<'_>> {
     (type_name, array_length)
         .parse(input)
         .map(|(input, (type_param, len))| {
@@ -126,11 +126,11 @@ pub fn array_or_slice_internal(input: &str) -> IResult<&str, TypeName> {
         })
 }
 
-pub fn array_or_slice(input: &str) -> IResult<&str, TypeName> {
+pub fn array_or_slice(input: &str) -> IResult<&str, TypeName<'_>> {
     delimited(char('['), array_or_slice_internal, char(']')).parse(input)
 }
 
-pub fn parse_reference(input: &str) -> IResult<&str, TypeName> {
+pub fn parse_reference(input: &str) -> IResult<&str, TypeName<'_>> {
     (char('&'), opt(tag("mut")), opt(char(' ')), type_name)
         .parse(input)
         .map(|(input, (_, mut_str, _, type_param))| {
@@ -145,13 +145,13 @@ pub fn parse_reference(input: &str) -> IResult<&str, TypeName> {
         })
 }
 
-pub fn parse_unit(input: &str) -> IResult<&str, TypeName> {
+pub fn parse_unit(input: &str) -> IResult<&str, TypeName<'_>> {
     tag("()")
         .parse(input)
         .map(|(input, _)| (input, TypeName::Unit))
 }
 
-pub fn parse_tuple(input: &str) -> IResult<&str, TypeName> {
+pub fn parse_tuple(input: &str) -> IResult<&str, TypeName<'_>> {
     delimited(
         char('('),
         separated_list0(tag(", "), type_name),
@@ -164,11 +164,11 @@ pub fn parse_tuple(input: &str) -> IResult<&str, TypeName> {
     })
 }
 
-pub fn parse_unit_or_tuple(input: &str) -> IResult<&str, TypeName> {
+pub fn parse_unit_or_tuple(input: &str) -> IResult<&str, TypeName<'_>> {
     alt((parse_unit, parse_tuple)).parse(input)
 }
 
-pub fn named_primitive(input: &str) -> Option<IResult<&str, TypeName>> {
+pub fn named_primitive(input: &str) -> Option<IResult<&str, TypeName<'_>>> {
     if let Some(prim_type) = PRIMITIVE_TYPES
         .iter()
         .find(|prim_type| input.starts_with(*prim_type))
@@ -200,7 +200,7 @@ pub fn named_primitive(input: &str) -> Option<IResult<&str, TypeName>> {
     }
 }
 
-pub fn struct_type(input: &str) -> IResult<&str, TypeNameStruct> {
+pub fn struct_type(input: &str) -> IResult<&str, TypeNameStruct<'_>> {
     // Parse this as a module name
     (module_path, type_simple_name, type_parameters)
         .parse(input)
@@ -216,7 +216,7 @@ pub fn struct_type(input: &str) -> IResult<&str, TypeNameStruct> {
         })
 }
 
-pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
+pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName<'_>> {
     // Check for primitive types first, otherwise we cannot distinguish the
     // `std::u32` module from `u32` (type).
     //
@@ -231,7 +231,7 @@ pub fn named_primitive_or_struct(input: &str) -> IResult<&str, TypeName> {
     }
 }
 
-pub fn trait_type(input: &str) -> IResult<&str, TypeName> {
+pub fn trait_type(input: &str) -> IResult<&str, TypeName<'_>> {
     struct_type(input).map(|(input, type_name_struct)| {
         (
             input,
@@ -243,7 +243,7 @@ pub fn trait_type(input: &str) -> IResult<&str, TypeName> {
 }
 
 /// Parses a type name.
-pub fn type_name(input: &str) -> IResult<&str, TypeName> {
+pub fn type_name(input: &str) -> IResult<&str, TypeName<'_>> {
     // Primitive types begin with lowercase letters, but we have to detect them at
     // this level, as lower parsers (`module_name`, `type_simple_name`) cannot
     // tell if `"std::"` precedes the input it is given.
