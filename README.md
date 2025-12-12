@@ -40,6 +40,13 @@ tuples
 
 ```
 
+## ⚠️ PascalCase package names not supported
+
+This crate assumes module names will be `snake_case`, so if you have module names that begin with a capital letter (such as in generated code), then you may want to use [`pretty-name`](https://github.com/Nekomaru-PKU/pretty-name) instead.
+
+See [#19](https://github.com/azriel91/tynm/issues/19) for discussion.
+
+
 ## Motivation
 
 The [`core::any::type_name`] function stabilized in Rust 1.38 returns the fully qualified type
